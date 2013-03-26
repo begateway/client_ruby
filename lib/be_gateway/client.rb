@@ -4,6 +4,7 @@ require 'faraday_middleware'
 module BeGateway
   class Client
     cattr_accessor :rack_app
+    cattr_accessor :rack_app, :stub_app
 
     def initialize(params)
       @login = params[:shop_id]
@@ -49,6 +50,7 @@ module BeGateway
 
         conn.response :json
 
+        conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
       end
     end
