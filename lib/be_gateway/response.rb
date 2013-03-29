@@ -1,7 +1,7 @@
 module BeGateway
   class Response
     def initialize(response)
-      @params = response.body
+      @params = response
     end
 
     def transaction

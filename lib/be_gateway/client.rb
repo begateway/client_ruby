@@ -32,12 +32,16 @@ module BeGateway
       make_response(response)
     end
 
+    def notification(params)
+      Response.new(params)
+    end
+
     private
 
     attr_reader :login, :password, :url
 
     def make_response(response)
-      response.status == 200 ? Response.new(response) : ErrorResponse.new(response)
+      response.status == 200 ? Response.new(response.body) : ErrorResponse.new(response.body)
     end
 
     def post(path, params)

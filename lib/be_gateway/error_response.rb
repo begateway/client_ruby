@@ -1,7 +1,7 @@
 module BeGateway
   class ErrorResponse < OpenStruct
     def initialize(response)
-      super(response.body)
+      super(response)
     end
 
     def invalid?
