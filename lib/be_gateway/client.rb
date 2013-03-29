@@ -3,7 +3,6 @@ require 'faraday_middleware'
 
 module BeGateway
   class Client
-    cattr_accessor :rack_app
     cattr_accessor :rack_app, :stub_app
 
     def initialize(params)
@@ -61,6 +60,9 @@ module BeGateway
 
         conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
+        if !stub_app && !rack_app
+          conn.adapter Faraday.default_adapter
+        end
       end
     end
   end
