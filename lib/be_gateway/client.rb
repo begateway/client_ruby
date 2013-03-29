@@ -27,6 +27,11 @@ module BeGateway
       make_response(response)
     end
 
+    def refund(params)
+      response = post "/transactions/refunds", { request: params }
+      make_response(response)
+    end
+
     private
 
     attr_reader :login, :password, :url

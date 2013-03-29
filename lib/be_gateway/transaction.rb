@@ -20,6 +20,12 @@ module BeGateway
       @payment ||= Section.new(self[:payment])
     end
 
+    def refund
+      return unless self[:refund]
+
+      @refund ||= Section.new(self[:refund])
+    end
+
     def three_d_secure_verification
       return unless self[:three_d_secure_verification]
 
