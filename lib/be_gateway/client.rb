@@ -58,6 +58,8 @@ module BeGateway
 
         conn.response :json
 
+        conn.ssl = { :verify => false }
+
         conn.proxy(proxy) if proxy
 
         conn.adapter :test, stub_app if stub_app
