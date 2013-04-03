@@ -52,13 +52,11 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday.new(url: url) do |conn|
+      @connection ||= Faraday.new(url: url, ssl: { verify: false }) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
 
         conn.response :json
-
-        conn.ssl = { :verify => false }
 
         conn.proxy(proxy) if proxy
 
