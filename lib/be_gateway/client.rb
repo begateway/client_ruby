@@ -44,11 +44,19 @@ module BeGateway
     end
 
     def post(path, params)
-      connection.post(path, params)
+      send_request('post', path, params)
     end
 
     def get(path)
-      connection.get(path)
+      send_request('get', path)
+    end
+    
+    def send_request(method, path, params = nil)
+      begin
+        connection.public_send(method, path, params)
+      rescue => e
+        ErrorResponse.new({status: 503, message: 'Gateway is temporarily unavailable', error: e})
+      end      
     end
 
     def connection
