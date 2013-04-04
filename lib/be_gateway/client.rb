@@ -22,7 +22,8 @@ module BeGateway
     end
 
     def query(params)
-      response = get "/transactions/#{params[:id]}"
+      path = params[:tracking_id] ? "/transactions/tracking_id/#{params[:tracking_id]}" : "/transactions/#{params[:id]}"
+      response = get(path)
       make_response(response)
     end
 
@@ -50,13 +51,13 @@ module BeGateway
     def get(path)
       send_request('get', path)
     end
-    
+
     def send_request(method, path, params = nil)
       begin
         connection.public_send(method, path, params)
       rescue Faraday::Error::ClientError=> e
         ErrorResponse.new({ body: { status: 503, message: 'Gateway is temporarily unavailable', error: e.message } })
-      end      
+      end
     end
 
     def connection
