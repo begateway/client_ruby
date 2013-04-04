@@ -55,7 +55,7 @@ module BeGateway
     def send_request(method, path, params = nil)
       begin
         connection.public_send(method, path, params)
-      rescue => e
+      rescue Faraday::Error::ClientError=> e
         ErrorResponse.new({ body: { status: 503, message: 'Gateway is temporarily unavailable', error: e.message } })
       end
     end
