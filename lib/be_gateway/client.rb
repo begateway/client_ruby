@@ -55,7 +55,7 @@ module BeGateway
       begin
         connection.public_send(method, path, params)
       rescue => e
-        ErrorResponse.new({ body: {status: 503, message: 'Gateway is temporarily unavailable', error: e.message } })
+        ErrorResponse.new({ body: { status: 503, message: 'Gateway is temporarily unavailable', error: e.message } })
       end      
     end
 
