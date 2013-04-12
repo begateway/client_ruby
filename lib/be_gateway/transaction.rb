@@ -9,7 +9,7 @@ module BeGateway
     end
 
     [:authorization, :payment, :refund, :three_d_secure_verification,
-     :max_mind_verification].each do |section|
+     :max_mind_verification, :card_bin_verification].each do |section|
 
       define_method(section) do
         return unless self[section]
