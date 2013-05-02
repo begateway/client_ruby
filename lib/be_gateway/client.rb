@@ -61,7 +61,7 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday.new(url: url, ssl: { verify: false }) do |conn|
+      @connection ||= Faraday.new(url: url) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
 
