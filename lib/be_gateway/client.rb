@@ -16,6 +16,11 @@ module BeGateway
       make_response(response)
     end
 
+    def capture(params)
+      response = post "/transactions/captures", { request: params }
+      make_response(response)
+    end
+
     def payment(params)
       response = post "/transactions/payments", { request: params }
       make_response(response)
