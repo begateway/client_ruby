@@ -4,11 +4,13 @@ require 'faraday_middleware'
 module BeGateway
   class Client
     cattr_accessor :rack_app, :stub_app, :proxy
+    attr_reader :options
 
     def initialize(params)
       @login = params[:shop_id]
       @password = params[:secret_key]
       @url = params[:url]
+      @options = params[:options]
     end
 
     def authorize(params)
@@ -66,14 +68,14 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday.new(url: url) do |conn|
+      @connection ||= Faraday.new(url, options) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
 
         conn.response :json
 
         conn.proxy(proxy) if proxy
-
+        
         conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
         if !stub_app && !rack_app
