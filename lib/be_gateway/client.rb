@@ -4,11 +4,13 @@ require 'faraday_middleware'
 module BeGateway
   class Client
     cattr_accessor :rack_app, :stub_app, :proxy
+    attr_reader :options
 
     def initialize(params)
       @login = params[:shop_id]
       @password = params[:secret_key]
       @url = params[:url]
+      @options = params[:options]
     end
 
     def authorize(params)
@@ -71,7 +73,7 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday.new(url: url) do |conn|
+      @connection ||= Faraday.new(url, options) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
 
