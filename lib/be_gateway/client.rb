@@ -75,7 +75,7 @@ module BeGateway
         conn.response :json
 
         conn.proxy(proxy) if proxy
-        
+
         conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
         if !stub_app && !rack_app
