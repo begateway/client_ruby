@@ -37,6 +37,11 @@ module BeGateway
       response = post "/transactions/credits", { request: params }
       make_response(response)
     end
+    
+    def secure_verification(params)
+      response = post "/transactions/secure_verifications", { request: params }
+      make_response(response)      
+    end
 
     def query(params)
       path = params[:tracking_id] ? "/transactions/tracking_id/#{params[:tracking_id]}" : "/transactions/#{params[:id]}"
