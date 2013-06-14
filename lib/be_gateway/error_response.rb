@@ -7,6 +7,10 @@ module BeGateway
     def invalid?
       true
     end
+    
+    def transaction_type
+      transaction["type"]
+    end
 
     def errors
       @errors ||= Errors.new(self[:errors])
