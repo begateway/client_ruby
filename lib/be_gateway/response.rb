@@ -11,6 +11,10 @@ module BeGateway
     def invalid?
       false
     end
+    
+    def transaction_type
+      @params["transaction"]["type"]
+    end
 
     private
 
