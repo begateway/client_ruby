@@ -8,8 +8,9 @@ module BeGateway
       self[:status] == "incomplete"
     end
 
-    [:authorization, :payment, :refund, :capture, :void, :credit, :three_d_secure_verification,
-     :max_mind_verification, :card_bin_verification].each do |section|
+    [:authorization, :payment, :refund, :capture, :void, :credit, :chargeback,
+     :three_d_secure_verification, :max_mind_verification,
+     :card_bin_verification].each do |section|
 
       define_method(section) do
         return unless self[section]
