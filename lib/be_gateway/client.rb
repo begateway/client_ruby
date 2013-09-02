@@ -3,6 +3,9 @@ require 'faraday_middleware'
 
 module BeGateway
   class Client
+    extend Forwardable
+    def_delegators :connection, :headers, :headers=
+    
     cattr_accessor :rack_app, :stub_app, :proxy
     attr_reader :options
 
@@ -12,7 +15,7 @@ module BeGateway
       @url = params[:url]
       @options = params[:options]
     end
-
+    
     def authorize(params)
       response = post "/transactions/authorizations", { request: params }
       make_response(response)
