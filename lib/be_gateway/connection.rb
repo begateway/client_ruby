@@ -1,11 +1,14 @@
 module BeGateway
   module Connection
-    
+    extend ActiveSupport::Concern
     extend Forwardable
     def_delegators :connection, :headers, :headers=
     
-    cattr_accessor :rack_app, :stub_app, :proxy
     attr_reader :options
+
+    included do
+      cattr_accessor :rack_app, :stub_app, :proxy
+    end
 
     def initialize(params)
       @login = params[:shop_id]
@@ -39,7 +42,7 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday.new(url, options = {}) do |conn|
+      @connection ||= Faraday.new(url, options || {}) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
 
