@@ -3,7 +3,7 @@ module BeGateway
     include Connection
     
     def get_token(params)
-      response = post "/api/checkouts", { request: params }
+      response = post "/api/checkouts", { checkout: params }
       make_response(response)
     end
     
