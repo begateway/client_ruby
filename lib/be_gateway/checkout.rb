@@ -8,8 +8,8 @@ module BeGateway
     end
     
     def query(token)
-      response = get "/api/checkouts", { token: token }
-      make_response(response)      
+      response = get "/api/checkouts/#{token}"
+      make_response(response)
     end
   end
 end
