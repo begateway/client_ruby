@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
+  gem.add_runtime_dependency "activesupport"
   gem.add_runtime_dependency "faraday"
   gem.add_runtime_dependency "faraday_middleware"
   gem.add_runtime_dependency "backports"
