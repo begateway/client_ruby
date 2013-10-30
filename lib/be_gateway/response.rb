@@ -5,7 +5,7 @@ module BeGateway
     end
 
     def status
-      @params["transaction"]["status"]
+      params["transaction"]["status"]
     end
 
     def transaction
@@ -17,7 +17,11 @@ module BeGateway
     end
     
     def transaction_type
-      @params["transaction"]["type"]
+      params["transaction"]["type"]
+    end
+    
+    def to_params
+      params
     end
 
     private
