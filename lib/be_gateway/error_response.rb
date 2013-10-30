@@ -3,6 +3,10 @@ module BeGateway
     def initialize(response)
       super(response)
     end
+    
+    def status
+      "error"
+    end
 
     def invalid?
       true
@@ -23,7 +27,7 @@ module BeGateway
     private
 
     attr_reader :params
-
+    
     class Errors < OpenStruct
       def attributes
         each_pair.collect {|attr, _| attr }
