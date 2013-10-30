@@ -4,6 +4,10 @@ module BeGateway
       @params = response
     end
 
+    def status
+      params["transaction"]["status"]
+    end
+
     def transaction
       Transaction.new(params["transaction"])
     end
@@ -13,7 +17,11 @@ module BeGateway
     end
     
     def transaction_type
-      @params["transaction"]["type"]
+      params["transaction"]["type"]
+    end
+    
+    def to_params
+      params
     end
 
     private

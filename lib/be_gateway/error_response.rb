@@ -15,6 +15,10 @@ module BeGateway
     def errors
       @errors ||= Errors.new(self[:errors])
     end
+    
+    def to_params
+      params
+    end
 
     private
 
