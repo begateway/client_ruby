@@ -4,6 +4,10 @@ module BeGateway
       self[:status] == "successful"
     end
 
+    def failed?
+      self[:status] == "failed"
+    end
+
     def incomplete?
       self[:status] == "incomplete"
     end
