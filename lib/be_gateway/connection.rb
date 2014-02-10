@@ -14,7 +14,7 @@ module BeGateway
       @login = params[:shop_id]
       @password = params[:secret_key]
       @url = params[:url]
-      @options = params[:options]
+      @options = params[:options] || {}
     end
 
     private
@@ -47,7 +47,7 @@ module BeGateway
         conn.request :basic_auth, login, password
         
         conn.response :json
-        conn.response :logger, info_logger
+        conn.response :logger, logger
         
         conn.proxy(proxy) if proxy
 
@@ -59,10 +59,10 @@ module BeGateway
       end
     end
     
-    def info_logger
-      logger ||= Logger.new(STDOUT)
-      logger.level = Logger::INFO
-      logger
+    def logger
+      log = options[:logger] || Logger.new(STDOUT)
+      log.level = Logger::INFO
+      log
     end
     
   end
