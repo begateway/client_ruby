@@ -14,7 +14,7 @@ module BeGateway
       @login = params[:shop_id]
       @password = params[:secret_key]
       @url = params[:url]
-      @options = params[:options]
+      @options = params[:options] || {}
     end
 
     private
@@ -45,9 +45,10 @@ module BeGateway
       @connection ||= Faraday.new(url, options || {}) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
-
+        
         conn.response :json
-
+        conn.response :logger, logger
+        
         conn.proxy(proxy) if proxy
 
         conn.adapter :test, stub_app if stub_app
@@ -56,6 +57,12 @@ module BeGateway
           conn.adapter Faraday.default_adapter
         end
       end
+    end
+    
+    def logger
+      log = options[:logger] || Logger.new(STDOUT)
+      log.level = Logger::INFO
+      log
     end
     
   end
