@@ -4,7 +4,7 @@ require 'faraday_middleware'
 module BeGateway
   class Client
     include Connection
-    
+
     def authorize(params)
       response = post "/transactions/authorizations", { request: params }
       make_response(response)
@@ -49,5 +49,16 @@ module BeGateway
     def notification(params)
       Response.new(params)
     end
+
+    def create_card(params)
+      response = post "/credit_cards", { request: params }
+      make_response(response)
+    end
+
+    def create_card_by_token(token, params)
+      response = post "/credit_cards/#{token}", { request: params }
+      make_response(response)
+    end
+
   end
 end
