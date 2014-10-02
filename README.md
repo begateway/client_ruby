@@ -79,7 +79,10 @@ response.authorization.rrn
 
 ### Transaction Payment
 
-Transaction payment has same params as **Authorization**
+``` ruby
+response = client.authorize(params)
+```
+Where `params` have same structure as **Authorization**
 
 ### Transaction Refund example
 
@@ -96,7 +99,11 @@ response.transaction.status # => returns status of processed transaciton
 
 ### Transaction Capture/Void
 
-Transaction Capture/Void has same params as **Refund**
+``` ruby
+response = client.capture(params)
+response = client.void(params)
+```
+Where `params` have same structure as **Refund**
 
 ### Transaction Credit example
 
