@@ -80,7 +80,7 @@ response.authorization.rrn
 ### Transaction Payment
 
 ``` ruby
-response = client.authorize(params)
+response = client.payment(params)
 ```
 Where `params` have same structure as **Authorization**
 
