@@ -18,14 +18,29 @@ Or install it yourself as:
 
 ## Usage
 
-### Transaction Authorization
+### Intialization client
 
 ``` ruby
 client = BeGateway::Client.new({
   shop_id: 'YOUR SHOP ID',
-  secret_key: 'YOUR SHOP SECRET KEY'
+  secret_key: 'YOUR SHOP SECRET KEY',
+  url: 'YOUR GATEWAY URL'
 })
+```
 
+### Availibale actions:
+* authorize
+* capture
+* void
+* payment
+* refund
+* credit
+
+**Pay attention** that client add main **'request'** section automatically, and you don't need to describe it
+
+### Transaction Authorization example
+
+``` ruby
 response = client.authorize({
   amount: 100,
   currency: 'USD',
@@ -62,7 +77,52 @@ response.authorization.auth_code
 response.authorization.rrn
 ```
 
-### Query Request
+### Transaction Payment
+
+``` ruby
+response = client.payment(params)
+```
+Where `params` have same structure as **Authorization**
+
+### Transaction Refund example
+
+``` ruby
+response = client.refund({
+  parent_uid:  'UID of original Payment or Capture transactions',
+  amount:      'Amount of refund',
+  reason:      'Reason of refund. Ex "Client request"'
+})
+
+response.transaction.uid    # => returns uid of processed transaciton
+response.transaction.status # => returns status of processed transaciton
+```
+
+### Transaction Capture/Void
+
+``` ruby
+response = client.capture(params)
+response = client.void(params)
+```
+Where `params` have same structure as **Refund**
+
+### Transaction Credit example
+
+``` ruby
+response = client.credit({
+  amount: 100,
+  currency: "USD",
+  description: "Test transaction",
+  tracking_id: "tracking_id_000",
+  credit_card: {
+    token: "Token from successful Payment/Authorization transaction"
+  }
+})
+
+response.transaction.uid    # => returns uid of processed transaciton
+response.transaction.status # => returns status of processed transaciton
+```
+
+### Query Request example
 
 ``` ruby
 response = client.query(id: transaction_id)
