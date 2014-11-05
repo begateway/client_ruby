@@ -35,6 +35,7 @@ client = BeGateway::Client.new({
 * payment
 * refund
 * credit
+* checkup
 
 **Pay attention** that client add main **'request'** section automatically, and you don't need to describe it
 
@@ -81,6 +82,13 @@ response.authorization.rrn
 
 ``` ruby
 response = client.payment(params)
+```
+Where `params` have same structure as **Authorization**
+
+### Transaction Checkup
+This transaction allow you to check transaction via **beProtected** system.
+``` ruby
+response = client.checkup(params)
 ```
 Where `params` have same structure as **Authorization**
 

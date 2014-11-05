@@ -46,6 +46,11 @@ module BeGateway
       make_response(response)
     end
 
+    def checkup(params)
+      response = post "/transactions/checkups", { request: params }
+      make_response(response)
+    end
+
     def notification(params)
       Response.new(params)
     end
