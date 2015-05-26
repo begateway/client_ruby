@@ -35,6 +35,11 @@ module BeGateway
       make_response(response)
     end
 
+    def fraud_advice(params)
+      response = post "/transactions/fraud_advices", { request: params }
+      make_response(response)
+    end
+
     def query(params)
       path = params[:tracking_id] ? "/transactions/tracking_id/#{params[:tracking_id]}" : "/transactions/#{params[:id]}"
       response = get(path)
