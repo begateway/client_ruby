@@ -12,8 +12,8 @@ module BeGateway
       self[:status] == "incomplete"
     end
 
-    [:authorization, :payment, :refund, :capture, :void, :credit, :chargeback,
-     :three_d_secure_verification, :max_mind_verification,
+    [:authorization, :payment, :refund, :capture, :void, :credit, :chargeback, 
+     :fraud_advice, :three_d_secure_verification, :max_mind_verification,
      :card_bin_verification].each do |section|
 
       define_method(section) do
