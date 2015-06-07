@@ -1,6 +1,3 @@
-require 'faraday'
-require 'faraday_middleware'
-
 module BeGateway
   class Client
     include Connection
