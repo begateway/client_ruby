@@ -15,15 +15,9 @@ module BeGateway
     def errors
       @errors ||= Errors.new(self[:errors])
     end
-    
-    def to_params
-      params
-    end
 
     private
 
-    attr_reader :params
-    
     class Errors < OpenStruct
       def attributes
         each_pair.collect {|attr, _| attr }

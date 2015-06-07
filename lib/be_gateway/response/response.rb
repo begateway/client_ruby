@@ -19,13 +19,5 @@ module BeGateway
     def transaction_type
       params["transaction"]["type"]
     end
-    
-    def to_params
-      params
-    end
-
-    private
-
-    attr_reader :params
   end
 end
