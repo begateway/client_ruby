@@ -1,4 +1,8 @@
 require 'bundler/setup'
+require 'active_support'
+require 'ostruct'
+require 'pry'
+
 Bundler.setup
 
 require 'be_gateway'
