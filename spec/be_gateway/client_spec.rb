@@ -122,8 +122,146 @@ describe BeGateway::Client do
         end
       end
 
-      describe "#capture" do
-        
+      describe "#payment" do
+        before do
+          response_body["transaction"].tap do |hsh|
+            hsh.delete("authorization")
+            hsh["payment"] = {
+              "auth_code" => "654321",
+              "bank_code" => "00",
+              "rrn" => "999",
+              "ref_id" => "777888",
+              "message" => "The operation was successfully processed.",
+              "gateway_id" => 317,
+              "billing_descriptor" => "TEST GATEWAY BILLING DESCRIPTOR",
+              "status" => "successful"
+            }
+            hsh['type'] = 'payment'
+          end
+        end
+
+        it 'sends payment request' do
+          response = client.payment(request_params)
+
+          expect(response.transaction['type']).to eq('payment')
+          expect(response.transaction['payment']['auth_code']).to eq('654321')
+          expect(response.transaction['payment']['bank_code']).to eq('00')
+        end
+      end
+
+      context "child" do
+        %w(capture void refund).each do |tr_type|
+          describe "##{tr_type}" do
+            let(:request_params) {
+              {}.tap do |hsh|
+                hsh['parent_uid'] = '4107-310b0da80b',
+                hsh['amount'] = 100
+                hsh['reason'] = 'Client request' if tr_type == 'refund'
+              end
+            }
+            before do
+              response_body["transaction"].tap do |hsh|
+                hsh.delete("authorization")
+                hsh["#{tr_type}"] = {
+                  "message" => "The operation was successfully processed.",
+                  "ref_id" => "8889999",
+                  "gateway_id" => 152,
+                  "status" => "successful"
+                }
+                hsh["type"] = tr_type
+              end
+            end
+
+            it "sends #{tr_type} request" do
+              response = client.capture(request_params)
+
+              expect(response.transaction['type']).to eq(tr_type)
+              expect(response.transaction[tr_type]['ref_id']).to eq('8889999')
+            end
+          end
+        end        
+      end
+
+      context "#credit" do
+        let(:request_params) {
+          {
+            "amount" => 100,
+            "currency" => "USD",
+            "description" => "Test transaction",
+            "tracking_id" => "tracking_id_000",
+            "language" =>"en",
+            "credit_card" => {
+              "token" => "40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e"
+            }
+          }
+        }
+
+        before do
+          response_body["transaction"].tap do |hsh|
+            hsh.delete("authorization")
+            hsh["credit"] = {
+              "auth_code" => "654327",
+              "bank_code" => "00",
+              "rrn" => "934",
+              "ref_id" => "777822",
+              "message" => "Credit was approved",
+              "gateway_id" => 2124,
+              "billing_descriptor" => "TEST GATEWAY BILLING DESCRIPTOR",
+              "status" => "successful"
+            }
+            hsh["type"] = 'credit'
+          end
+        end
+
+        it 'sends credit request' do
+          response = client.credit(request_params)
+
+          expect(response.transaction['type']).to eq('credit')
+          expect(response.transaction['credit']['ref_id']).to eq('777822')
+          expect(response.transaction['credit']['rrn']).to eq('934')
+        end
+      end
+
+      context "other" do
+        context "#query" do
+          before { allow(client).to receive(:get).with(any_args).and_return(successful_response) }
+          let(:request_params) { { id: '4107-310b0da80b' } }
+          
+          it 'sends query request' do
+            response = client.query(request_params)
+
+            expect(response.transaction['currency']).to eq('USD')
+            expect(response.transaction['amount']).to eq(100)
+            expect(response.transaction['credit_card']['token']).to eq('40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e')
+          end
+        end
+
+        context "#checkup" do
+          before do
+            response_body["transaction"].tap do |hsh|
+              hsh["be_protected_verification"] = {
+                "status" => "successful",
+                "white_black_list" => {
+                  "email" => "absent",
+                  "ip" => "absent",
+                  "card_number" => "white"
+                },
+                "rules" => {
+                  "1_123_My Shop" => {
+                    "more_100_eur" => {"Transaction amount more than 100 AND Transaction currency is EUR" => "passed"}
+                  },
+                }
+              }
+            end
+          end
+
+          it 'sends checkup request' do
+            response = client.checkup(request_params)
+
+            expect(response.transaction['be_protected_verification']['status']).to eq('successful')
+            expect(response.transaction['be_protected_verification']['rules']['1_123_My Shop']).not_to be_empty
+          end
+        end
       end
 
     end
