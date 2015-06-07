@@ -4,6 +4,10 @@ module BeGateway
       @params = response
     end
 
+    def successful?
+      true
+    end
+
     def status
       params["transaction"]["status"]
     end
