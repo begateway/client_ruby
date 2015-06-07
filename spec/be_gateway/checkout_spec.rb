@@ -130,8 +130,8 @@ describe BeGateway::Checkout do
         }
       }
 
-      let(:successful_response) { OpenStruct.new(status: 422, body: response_body) }
-      before { allow(checkout).to receive(:post).with(any_args).and_return(successful_response) }
+      let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
+      before { allow(checkout).to receive(:post).with(any_args).and_return(failed_response) }
       
       context "#get_token" do
         it 'gets errors' do
