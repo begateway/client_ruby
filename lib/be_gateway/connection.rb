@@ -11,9 +11,9 @@ module BeGateway
     end
 
     def initialize(params)
-      @login = params[:shop_id]
-      @password = params[:secret_key]
-      @url = params[:url]
+      @login = params.fetch(:shop_id)
+      @password = params.fetch(:secret_key)
+      @url = params.fetch(:url)
       @options = params[:options] || {}
     end
 
