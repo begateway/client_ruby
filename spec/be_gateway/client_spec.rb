@@ -263,6 +263,36 @@ describe BeGateway::Client do
           end
         end
       end
+    end
+
+    context "failed request" do
+      let(:response_body) {
+        {
+          "message" => "Currency can't be blank. Description can't be blank. Amount can't be blank",
+          "errors" => {
+            "currency" => ["can't be blank"],
+            "description" => ["can't be blank"],
+            "amount" => ["must be greater than 0"]
+          }
+        }
+      }
+
+      before do
+        request_params.tap do |hsh|
+          hsh['amount'] = nil
+          hsh['description'] = nil
+          hsh['amount'] = 0
+        end
+      end
+
+      let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
+      before { allow(client).to receive(:post).with(any_args).and_return(failed_response) }
+
+      it 'returns errors' do
+        response = client.authorize(request_params)
+
+        expect(response['errors']['amount']).to eq(["must be greater than 0"])
+      end
 
     end
   end
