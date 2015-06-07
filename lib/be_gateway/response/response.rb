@@ -1,11 +1,5 @@
 module BeGateway
-  class Response < OpenStruct
-    def initialize(response)
-      @params = response
-      
-      super(response)
-    end
-
+  class Response < Base
     def successful?
       true
     end

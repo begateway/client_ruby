@@ -1,9 +1,5 @@
 module BeGateway
-  class ErrorResponse < OpenStruct
-    def initialize(response)
-      super(response)
-    end
-    
+  class ErrorResponse < Base    
     def status
       "error"
     end
