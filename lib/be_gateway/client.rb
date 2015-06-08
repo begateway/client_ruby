@@ -4,7 +4,7 @@ module BeGateway
     TRANSACTIONS = %w(authorize capture void payment credit chargeback fraud_advice refund checkup)
 
     TRANSACTIONS.each do |tr_type|
-      define_method tr_type do |params|
+      define_method tr_type.to_sym do |params|
         response = post post_url(tr_type), { request: params }
         make_response(response)
       end
