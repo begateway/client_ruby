@@ -5,7 +5,7 @@ module BeGateway
 
     TRANSACTIONS.each do |tr_type|
       define_method tr_type do |params|
-        response = post "/transactions/#{tr_type}s", { request: params }
+        response = post post_url(tr_type), { request: params }
         make_response(response)
       end
     end
@@ -28,6 +28,16 @@ module BeGateway
     def create_card_by_token(token, params)
       response = post "/credit_cards/#{token}", { request: params }
       make_response(response)
+    end
+
+    private
+
+    def post_url(tr_type)
+      if tr_type == 'authorize'
+        "/transactions/authorizations"
+      else
+        "/transactions/#{tr_type}s"  
+      end
     end
 
   end
