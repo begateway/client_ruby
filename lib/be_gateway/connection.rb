@@ -11,9 +11,9 @@ module BeGateway
     end
 
     def initialize(params)
-      @login = params[:shop_id]
-      @password = params[:secret_key]
-      @url = params[:url]
+      @login = params.fetch(:shop_id)
+      @password = params.fetch(:secret_key)
+      @url = params.fetch(:url)
       @options = params[:options] || {}
     end
 
@@ -22,7 +22,7 @@ module BeGateway
     attr_reader :login, :password, :url
 
     def make_response(response)
-      response.status == 200 ? Response.new(response.body) : ErrorResponse.new(response.body)
+      (200..299).include?(response.status) ? Response.new(response.body) : ErrorResponse.new(response.body)
     end
 
     def post(path, params)

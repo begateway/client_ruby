@@ -1,7 +1,7 @@
 module BeGateway
-  class Response
-    def initialize(response)
-      @params = response
+  class Response < Base
+    def successful?
+      true
     end
 
     def status
@@ -19,13 +19,5 @@ module BeGateway
     def transaction_type
       params["transaction"]["type"]
     end
-    
-    def to_params
-      params
-    end
-
-    private
-
-    attr_reader :params
   end
 end
