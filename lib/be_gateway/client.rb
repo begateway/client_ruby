@@ -16,6 +16,13 @@ module BeGateway
       make_response(response)
     end
 
+    def close_days(params)
+      path = '/transactions/close_days'
+      response = post path, { request: params }
+      
+      make_response(response)
+    end
+
     def notification(params)
       Response.new(params)
     end
