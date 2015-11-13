@@ -262,6 +262,50 @@ describe BeGateway::Client do
             expect(response.transaction['be_protected_verification']['rules']['1_123_My Shop']).not_to be_empty
           end
         end
+
+        context "#close_days" do
+          context 'when gateway support close_days transaction' do
+            let(:response_body) { {
+                "transaction" => {
+                  "status" => "successful",
+                  "success" => true,
+                  "message" => "Close day transaction successfully queued."
+                }
+              }
+            }
+
+            let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+            before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
+
+            it 'sends close_days request' do
+              response = client.close_days(gateway_id: 1)
+
+              expect(response.transaction.message).to eq('Close day transaction successfully queued.')
+              expect(response.transaction.success).to eq(true)
+              expect(response.transaction.status).to eq('successful')
+            end
+          end
+
+          context 'when gateway does not support close_days transaction' do
+            let(:response_body) {
+              {
+                "message" => "Gateway does not support closing day transaction",
+                "errors" => { "base" => "Transaction is not supported"}
+              }
+            }
+            let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
+            
+            before { allow(client).to receive(:post).with(any_args).and_return(failed_response) }
+
+            it 'gets unsupported action response' do
+              response = client.close_days(gateway_id: 1)
+
+              expect(response.message).to eq("Gateway does not support closing day transaction")
+              expect(response["errors"].any?).to eq(true)
+            end
+          end
+        end
+
       end
     end
 
