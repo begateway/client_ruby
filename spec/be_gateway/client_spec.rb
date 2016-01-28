@@ -308,7 +308,6 @@ describe BeGateway::Client do
             end
           end
         end
-
       end
     end
 
@@ -342,8 +341,6 @@ describe BeGateway::Client do
 
         expect(response.errors.amount).to eq(['must be greater than 0'])
       end
-
     end
   end
-
 end

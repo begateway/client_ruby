@@ -1,7 +1,7 @@
 module BeGateway
   class ErrorResponse < Base
     def status
-      "error"
+      'error'
     end
 
     def invalid?
@@ -9,7 +9,7 @@ module BeGateway
     end
 
     def transaction_type
-      transaction["type"]
+      transaction['type']
     end
 
     def errors

@@ -38,14 +38,12 @@ module BeGateway
         connection.public_send(method, path, params)
       rescue Faraday::Error::ClientError => e
         ErrorResponse.new(
-          body:
-            {
-              response:
-                {
-                  message: 'Gateway is temporarily unavailable',
-                  error: e.message
-                }
+          {
+            'response' => {
+              'message' => 'Gateway is temporarily unavailable',
+              'error' => e.message
             }
+          }
         )
       end
     end
