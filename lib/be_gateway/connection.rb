@@ -3,7 +3,7 @@ module BeGateway
     extend ActiveSupport::Concern
     extend Forwardable
     def_delegators :connection, :headers, :headers=
-    
+
     attr_reader :options
 
     included do
@@ -18,7 +18,7 @@ module BeGateway
     end
 
     private
-    
+
     attr_reader :login, :password, :url
 
     def make_response(response)
@@ -37,7 +37,16 @@ module BeGateway
       begin
         connection.public_send(method, path, params)
       rescue Faraday::Error::ClientError => e
-        ErrorResponse.new({ body: { status: 'error', message: 'Gateway is temporarily unavailable', error: e.message } })
+        ErrorResponse.new(
+          body:
+            {
+              response:
+                {
+                  message: 'Gateway is temporarily unavailable',
+                  error: e.message
+                }
+            }
+        )
       end
     end
 
@@ -45,10 +54,10 @@ module BeGateway
       @connection ||= Faraday.new(url, options || {}) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
-        
+
         conn.response :json
         conn.response :logger, logger
-        
+
         conn.proxy(proxy) if proxy
 
         conn.adapter :test, stub_app if stub_app
@@ -58,12 +67,11 @@ module BeGateway
         end
       end
     end
-    
+
     def logger
       log = options[:logger] || Logger.new(STDOUT)
       log.level = Logger::INFO
       log
     end
-    
   end
 end
