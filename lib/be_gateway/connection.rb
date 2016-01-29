@@ -36,12 +36,17 @@ module BeGateway
     def send_request(method, path, params = nil)
       begin
         connection.public_send(method, path, params)
-      rescue Faraday::Error::ClientError => e
-        ErrorResponse.new(
+      rescue Faraday::Error::ClientError
+        OpenStruct.new(
           {
-            'response' => {
-              'message' => 'Gateway is temporarily unavailable',
-              'error' => e.message
+            status: 500,
+            body: {
+              'response' => {
+                'message' => 'Gateway is temporarily unavailable',
+                'errors' => {
+                  'gateway' => 'is temporarily unavailable'
+                }
+              }
             }
           }
         )

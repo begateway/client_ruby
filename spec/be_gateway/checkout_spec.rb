@@ -41,9 +41,9 @@ describe BeGateway::Checkout do
     end
     let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
 
-    before { allow(checkout).to receive(:post).with(any_args).and_return(successful_response) }
-
     context "successful request" do
+      before { allow(checkout).to receive(:post).with(any_args).and_return(successful_response) }
+
       describe "#get_token" do
         let(:response_body) do
           {
@@ -144,6 +144,21 @@ describe BeGateway::Checkout do
           expect(response.errors).not_to be_nil
           expect(response.message).to eq 'BIG ERROR STRING RECIEVED!!!'
         end
+      end
+    end
+
+    context 'Faraday client raises an error' do
+      let(:response_body) { OpenStruct.new() }
+      
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:public_send).and_raise(Faraday::Error::ClientError, "Houston, we've got a problem")
+      end
+
+      it 'returns an error response' do
+        response = checkout.get_token({})
+        expect(response.invalid?).to eq(true)
+        expect(response.message).to eq('Gateway is temporarily unavailable')
+        expect(response.errors.gateway).to eq('is temporarily unavailable')
       end
     end
   end
