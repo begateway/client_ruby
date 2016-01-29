@@ -128,7 +128,7 @@ describe BeGateway::Checkout do
               'settings.fail_url' => ['does not appear to be valid'],
               'order.currency' =>['is invalid']
             },
-            'message' => 'BIG ERROR STRING RECIEVED!!!'
+            'message' => 'BIG ERROR IS RECEIVED!!!'
           }
         }
       end
@@ -142,14 +142,12 @@ describe BeGateway::Checkout do
 
           expect(response.invalid?).to eq(true)
           expect(response.errors).not_to be_nil
-          expect(response.message).to eq 'BIG ERROR STRING RECIEVED!!!'
+          expect(response.message).to eq 'BIG ERROR IS RECEIVED!!!'
         end
       end
     end
 
     context 'Faraday client raises an error' do
-      let(:response_body) { OpenStruct.new() }
-      
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:public_send).and_raise(Faraday::Error::ClientError, "Houston, we've got a problem")
       end
