@@ -8,10 +8,6 @@ module BeGateway
       true
     end
 
-    def transaction_type
-      transaction['type']
-    end
-
     def errors
       @errors ||= Errors.new(self['response']['errors'])
     end
