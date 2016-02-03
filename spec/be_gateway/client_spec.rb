@@ -1,13 +1,13 @@
 require 'spec_helper'
 
 describe BeGateway::Client do
-  let(:params) {
+  let(:params) do
     {
       shop_id: 1,
       secret_key: 'secret_key',
       url: 'https://gateway.ecomcharge.com'
     }
-  }
+  end
 
   describe "#initialize" do
     before { params.delete(:shop_id) }
@@ -19,84 +19,84 @@ describe BeGateway::Client do
 
   describe "transaction" do
     let(:client) { described_class.new(params) }
-    let(:request_params) {
+    let(:request_params) do
       {
-        "amount" => 100,
-        "currency" => "USD",
-        "description" => "Test transaction",
-        "tracking_id" => "your_uniq_number",
-        "language" => "en",
-        "billing_address" => {
-           "first_name" => "John",
-           "last_name" => "Doe",
-           "country" => "US",
-           "city" => "Denver",
-           "state" => "CO",
-           "zip" => "96002",
-           "address" => "1st Street"
+        'amount' => 100,
+        'currency' => 'USD',
+        'description' => 'Test transaction',
+        'tracking_id' => 'your_uniq_number',
+        'language' => 'en',
+        'billing_address' => {
+           'first_name' => 'John',
+           'last_name' => 'Doe',
+           'country' => 'US',
+           'city' => 'Denver',
+           'state' => 'CO',
+           'zip' => '96002',
+           'address' => '1st Street'
         },
-        "credit_card" => {
-           "number" => "4200000000000000",
-           "verification_value" => "123",
-           "holder" => "John Doe",
-           "exp_month" => "05",
-           "exp_year" => "2020"
+        'credit_card' => {
+           'number' => '4200000000000000',
+           'verification_value' => '123',
+           'holder' => 'John Doe',
+           'exp_month' => '05',
+           'exp_year' => '2020'
         },
-        "customer" => {
-           "ip" => "127.0.0.1",
-           "email" => "john@example.com"
+        'customer' => {
+           'ip' => '127.0.0.1',
+           'email' => 'john@example.com'
         }
       }
-    }
+    end
 
     context "successful request" do
       let(:response_body) {
         {
-          "transaction" => {
-             "customer" => {
-                "ip" => "127.0.0.1",
-                "email" => "john@example.com"
+          'transaction' => {
+             'customer' => {
+                'ip' => '127.0.0.1',
+                'email' => 'john@example.com'
              },
-             "credit_card" => {
-                "holder" => "John Doe",
-                "stamp" => "3709786942408b77017a3aac8390d46d77d181e34554df527a71919a856d0f28",
-                "token" => "40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e",
-                "brand" => "visa",
-                "last_4" => "0000",
-                "first_1" => "4",
-                "exp_month" => 5,
-                "exp_year" => 2015
+             'credit_card' => {
+                'holder' => 'John Doe',
+                'stamp' => '3709786942408b77017a3aac8390d46d77d181e34554df527a71919a856d0f28',
+                'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e',
+                'brand' => 'visa',
+                'last_4' => '0000',
+                'first_1' => '4',
+                'exp_month' => 5,
+                'exp_year' => 2015
              },
-             "billing_address" => {
-                "first_name" => "John",
-                "last_name" => "Doe",
-                "address" => "1st Street",
-                "country" => "US",
-                "city" => "Denver",
-                "zip" => "96002",
-                "state" => "CO"
+             'billing_address' => {
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'address' => '1st Street',
+                'country' => 'US',
+                'city' => 'Denver',
+                'zip' => '96002',
+                'state' => 'CO'
              },
-             "authorization" => {
-                "auth_code" => "654321",
-                "bank_code" => "00",
-                "rrn" => "999",
-                "ref_id" => "777888",
-                "message" => "The operation was successfully processed.",
-                "gateway_id" => 317,
-                "billing_descriptor" => "TEST GATEWAY BILLING DESCRIPTOR",
-                "status" => "successful"
+             'authorization' => {
+                'auth_code' => '654321',
+                'bank_code' => '00',
+                'rrn' => '999',
+                'ref_id' => '777888',
+                'message' => 'The operation was successfully processed.',
+                'gateway_id' => 317,
+                'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
+                'status' => 'successful'
              },
-             "uid" => "4107-310b0da80b",
-             "status" => "successful",
-             "message" => "Successfully processed",
-             "amount" => 100,
-             "currency" => "USD",
-             "description" => "Test order",
-             "type" => "authorization",
-             "tracking_id" => "your_uniq_number",
-             "language" => "en"
-          }        
-        }  
+             'uid' => '4107-310b0da80b',
+             'status' => 'successful',
+             'message' => 'Successfully processed',
+             'amount' => 100,
+             'currency' => 'USD',
+             'description' => 'Test order',
+             'type' => 'authorization',
+             'tracking_id' => 'your_uniq_number',
+             'language' => 'en'
+          }
+        }
       }
       let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
       before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
@@ -124,17 +124,17 @@ describe BeGateway::Client do
 
       describe "#payment" do
         before do
-          response_body["transaction"].tap do |hsh|
-            hsh.delete("authorization")
-            hsh["payment"] = {
-              "auth_code" => "654321",
-              "bank_code" => "00",
-              "rrn" => "999",
-              "ref_id" => "777888",
-              "message" => "The operation was successfully processed.",
-              "gateway_id" => 317,
-              "billing_descriptor" => "TEST GATEWAY BILLING DESCRIPTOR",
-              "status" => "successful"
+          response_body['transaction'].tap do |hsh|
+            hsh.delete('authorization')
+            hsh['payment'] = {
+              'auth_code' => '654321',
+              'bank_code' => '00',
+              'rrn' => '999',
+              'ref_id' => '777888',
+              'message' => 'The operation was successfully processed.',
+              'gateway_id' => 317,
+              'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
+              'status' => 'successful'
             }
             hsh['type'] = 'payment'
           end
@@ -160,13 +160,13 @@ describe BeGateway::Client do
               end
             }
             before do
-              response_body["transaction"].tap do |hsh|
-                hsh.delete("authorization")
+              response_body['transaction'].tap do |hsh|
+                hsh.delete('authorization')
                 hsh["#{tr_type}"] = {
-                  "message" => "The operation was successfully processed.",
-                  "ref_id" => "8889999",
-                  "gateway_id" => 152,
-                  "status" => "successful"
+                  'message' => 'The operation was successfully processed.',
+                  'ref_id' => '8889999',
+                  'gateway_id' => 152,
+                  'status' => 'successful'
                 }
                 hsh["type"] = tr_type
               end
@@ -179,37 +179,37 @@ describe BeGateway::Client do
               expect(response.transaction[tr_type]['ref_id']).to eq('8889999')
             end
           end
-        end        
+        end
       end
 
       context "#credit" do
         let(:request_params) {
           {
-            "amount" => 100,
-            "currency" => "USD",
-            "description" => "Test transaction",
-            "tracking_id" => "tracking_id_000",
-            "language" =>"en",
-            "credit_card" => {
-              "token" => "40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e"
+            'amount' => 100,
+            'currency' => 'USD',
+            'description' => 'Test transaction',
+            'tracking_id' => 'tracking_id_000',
+            'language' =>'en',
+            'credit_card' => {
+              'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e'
             }
           }
         }
 
         before do
-          response_body["transaction"].tap do |hsh|
-            hsh.delete("authorization")
-            hsh["credit"] = {
-              "auth_code" => "654327",
-              "bank_code" => "00",
-              "rrn" => "934",
-              "ref_id" => "777822",
-              "message" => "Credit was approved",
-              "gateway_id" => 2124,
-              "billing_descriptor" => "TEST GATEWAY BILLING DESCRIPTOR",
-              "status" => "successful"
+          response_body['transaction'].tap do |hsh|
+            hsh.delete('authorization')
+            hsh['credit'] = {
+              'auth_code' => '654327',
+              'bank_code' => '00',
+              'rrn' => '934',
+              'ref_id' => '777822',
+              'message' => 'Credit was approved',
+              'gateway_id' => 2124,
+              'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
+              'status' => 'successful'
             }
-            hsh["type"] = 'credit'
+            hsh['type'] = 'credit'
           end
         end
 
@@ -226,7 +226,7 @@ describe BeGateway::Client do
         context "#query" do
           before { allow(client).to receive(:get).with(any_args).and_return(successful_response) }
           let(:request_params) { { id: '4107-310b0da80b' } }
-          
+
           it 'sends query request' do
             response = client.query(request_params)
 
@@ -238,17 +238,17 @@ describe BeGateway::Client do
 
         context "#checkup" do
           before do
-            response_body["transaction"].tap do |hsh|
-              hsh["be_protected_verification"] = {
-                "status" => "successful",
-                "white_black_list" => {
-                  "email" => "absent",
-                  "ip" => "absent",
-                  "card_number" => "white"
+            response_body['transaction'].tap do |hsh|
+              hsh['be_protected_verification'] = {
+                'status' => 'successful',
+                'white_black_list' => {
+                  'email' => 'absent',
+                  'ip' => 'absent',
+                  'card_number' => 'white'
                 },
-                "rules" => {
-                  "1_123_My Shop" => {
-                    "more_100_eur" => {"Transaction amount more than 100 AND Transaction currency is EUR" => "passed"}
+                'rules' => {
+                  '1_123_My Shop' => {
+                    'more_100_eur' => {'Transaction amount more than 100 AND Transaction currency is EUR' => 'passed'}
                   },
                 }
               }
@@ -265,14 +265,15 @@ describe BeGateway::Client do
 
         context "#close_days" do
           context 'when gateway support close_days transaction' do
-            let(:response_body) { {
-                "transaction" => {
-                  "status" => "successful",
-                  "success" => true,
-                  "message" => "Close day transaction successfully queued."
+            let(:response_body) do
+              {
+                'transaction' => {
+                  'status' => 'successful',
+                  'success' => true,
+                  'message' => 'Close day transaction successfully queued.'
                 }
               }
-            }
+            end
 
             let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
             before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
@@ -287,39 +288,42 @@ describe BeGateway::Client do
           end
 
           context 'when gateway does not support close_days transaction' do
-            let(:response_body) {
+            let(:response_body) do
               {
-                "message" => "Gateway does not support closing day transaction",
-                "errors" => { "base" => "Transaction is not supported"}
+                'response' => {
+                  'message' => 'Gateway does not support closing day transaction',
+                  'errors' => { 'base' => 'Transaction is not supported'}
+                }
               }
-            }
+            end
             let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
-            
+
             before { allow(client).to receive(:post).with(any_args).and_return(failed_response) }
 
             it 'gets unsupported action response' do
               response = client.close_days(gateway_id: 1)
 
               expect(response.message).to eq("Gateway does not support closing day transaction")
-              expect(response["errors"].any?).to eq(true)
+              expect(response.errors.base).to eq('Transaction is not supported')
             end
           end
         end
-
       end
     end
 
     context "failed request" do
-      let(:response_body) {
+      let(:response_body) do
         {
-          "message" => "Currency can't be blank. Description can't be blank. Amount can't be blank",
-          "errors" => {
-            "currency" => ["can't be blank"],
-            "description" => ["can't be blank"],
-            "amount" => ["must be greater than 0"]
+          'response' => {
+            'message' => "Currency can't be blank. Description can't be blank. Amount can't be blank",
+            'errors' => {
+              'currency' => ["can't be blank"],
+              'description' => ["can't be blank"],
+              'amount' => ['must be greater than 0']
+            }
           }
         }
-      }
+      end
 
       before do
         request_params.tap do |hsh|
@@ -335,10 +339,8 @@ describe BeGateway::Client do
       it 'returns errors' do
         response = client.authorize(request_params)
 
-        expect(response['errors']['amount']).to eq(["must be greater than 0"])
+        expect(response.errors.amount).to eq(['must be greater than 0'])
       end
-
     end
   end
-
 end
