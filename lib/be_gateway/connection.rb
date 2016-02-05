@@ -29,6 +29,10 @@ module BeGateway
       send_request('post', path, params)
     end
 
+    def put(path, params)
+      send_request('put', path, params)
+    end
+
     def get(path)
       send_request('get', path)
     end
