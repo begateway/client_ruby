@@ -19,7 +19,6 @@ module BeGateway
     def close_days(params)
       path = '/transactions/close_days'
       response = post path, { request: params }
-      
       make_response(response)
     end
 
@@ -28,7 +27,7 @@ module BeGateway
     end
 
     def create_card(params)
-      response = post "/credit_cards", { request: params }
+      response = post '/credit_cards', { request: params }
       make_response(response)
     end
 
@@ -37,15 +36,24 @@ module BeGateway
       make_response(response)
     end
 
+    def v2_create_card(params)
+      response = post '/v2/credit_cards', { request: params }
+      make_response(response)
+    end
+
+    def v2_create_card_by_token(token, params)
+      response = put "/v2/credit_cards/#{token}", { request: params }
+      make_response(response)
+    end
+
     private
 
     def post_url(tr_type)
       if tr_type == 'authorize'
-        "/transactions/authorizations"
+        '/transactions/authorizations'
       else
-        "/transactions/#{tr_type}s"  
+        "/transactions/#{tr_type}s"
       end
     end
-
   end
 end
