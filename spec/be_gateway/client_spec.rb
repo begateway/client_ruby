@@ -17,6 +17,57 @@ describe BeGateway::Client do
     end
   end
 
+  describe 'credit card' do
+    context 'v2' do
+      let(:client) { described_class.new(params) }
+      let(:request_params) do
+        {
+          'request' => {
+            'number' => 4200000000000000,
+            'holder' => "John Smith",
+            'exp_month' => 05,
+            'exp_year' => 2019,
+            'public_key' => 'public_key'
+          }
+        }
+      end
+      let(:response_body) do
+        {
+          'holder' => 'John Doe',
+          'stamp' => 'a825df7faba8804619aef7a6d5a5821ec292fce04e3e43933ca33d0692df90b4',
+          'brand' => 'visa',
+          'last_4' => '0000',
+          'first_1' => '4',
+          'token' => '7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af',
+          'exp_month' => 1,
+          'exp_year' => 2020
+        }
+      end
+      let(:token) { '7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af' }
+      let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+      before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
+
+      context 'create' do
+        it 'returns credit_card information' do
+          response = client.v2_create_card(request_params)
+          expect(response.holder).to eq ('John Doe')
+          expect(response.token).to eq ('7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af')
+        end
+      end
+
+      context 'update by token' do
+        before { allow(client).to receive(:put).with(any_args).and_return(successful_response) }
+
+        it 'returns credit_card information' do
+          response = client.v2_update_card_by_token(token, request_params)
+          expect(response.holder).to eq ('John Doe')
+          expect(response.token).to eq ('7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af')
+        end
+      end
+    end
+  end
+
   describe "transaction" do
     let(:client) { described_class.new(params) }
     let(:request_params) do
