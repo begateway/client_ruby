@@ -31,7 +31,7 @@ module BeGateway
       make_response(response)
     end
 
-    def create_card_by_token(token, params)
+    def update_card_by_token(token, params)
       response = post "/credit_cards/#{token}", { request: params }
       make_response(response)
     end
