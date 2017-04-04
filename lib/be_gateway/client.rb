@@ -1,7 +1,9 @@
 module BeGateway
   class Client
     include Connection
-    TRANSACTIONS = %w(authorize capture void payment credit payout chargeback fraud_advice refund checkup p2p)
+
+    TRANSACTIONS = %w(authorize capture void payment credit payout chargeback
+                      fraud_advice refund checkup p2p tokenization)
 
     TRANSACTIONS.each do |tr_type|
       define_method tr_type.to_sym do |params|
