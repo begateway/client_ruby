@@ -3,25 +3,22 @@ module BeGateway
     include Connection
 
     TRANSACTIONS = %w(authorize capture void payment credit payout chargeback
-                      fraud_advice refund checkup p2p tokenization)
+                      fraud_advice refund checkup p2p tokenization).freeze
 
     TRANSACTIONS.each do |tr_type|
       define_method tr_type.to_sym do |params|
-        response = post post_url(tr_type), { request: params }
-        make_response(response)
+        post(transaction_url(tr_type), request: params)
       end
     end
 
     def query(params)
       path = params[:tracking_id] ? "/transactions/tracking_id/#{params[:tracking_id]}" : "/transactions/#{params[:id]}"
-      response = get(path)
-      make_response(response)
+      get(path)
     end
 
     def close_days(params)
       path = '/transactions/close_days'
-      response = post path, { request: params }
-      make_response(response)
+      post(path, request: params)
     end
 
     def notification(params)
@@ -29,28 +26,24 @@ module BeGateway
     end
 
     def create_card(params)
-      response = post '/credit_cards', { request: params }
-      make_response(response)
+      post('/credit_cards', request: params)
     end
 
     def update_card_by_token(token, params)
-      response = post "/credit_cards/#{token}", { request: params }
-      make_response(response)
+      post("/credit_cards/#{token}", request: params)
     end
 
     def v2_create_card(params)
-      response = post '/v2/credit_cards', { request: params }
-      make_response(response)
+      post('/v2/credit_cards', request: params)
     end
 
     def v2_update_card_by_token(token, params)
-      response = put "/v2/credit_cards/#{token}", { request: params }
-      make_response(response)
+      put("/v2/credit_cards/#{token}", request: params)
     end
 
     private
 
-    def post_url(tr_type)
+    def transaction_url(tr_type)
       if tr_type == 'authorize'
         '/transactions/authorizations'
       else

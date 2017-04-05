@@ -36,6 +36,10 @@ client = BeGateway::Client.new({
 * refund
 * credit
 * checkup
+* tokenization
+* payout
+* fraud_advice
+* p2p
 
 **Pay attention** that client add main **'request'** section automatically, and you don't need to describe it
 

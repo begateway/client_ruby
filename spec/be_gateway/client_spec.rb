@@ -9,7 +9,7 @@ describe BeGateway::Client do
     }
   end
 
-  describe "#initialize" do
+  describe '#initialize' do
     before { params.delete(:shop_id) }
 
     it 'raises error for required attributes' do
@@ -23,9 +23,9 @@ describe BeGateway::Client do
       let(:request_params) do
         {
           'request' => {
-            'number' => 4200000000000000,
-            'holder' => "John Smith",
-            'exp_month' => 05,
+            'number' => '4200000000000000',
+            'holder' => 'John Smith',
+            'exp_month' => 0o5,
             'exp_year' => 2019,
             'public_key' => 'public_key'
           }
@@ -46,29 +46,29 @@ describe BeGateway::Client do
       let(:token) { '7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af' }
       let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
 
-      before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
 
       context 'create' do
         it 'returns credit_card information' do
           response = client.v2_create_card(request_params)
-          expect(response.holder).to eq ('John Doe')
-          expect(response.token).to eq ('7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af')
+          expect(response.holder).to eq 'John Doe'
+          expect(response.token).to eq '7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af'
         end
       end
 
       context 'update by token' do
-        before { allow(client).to receive(:put).with(any_args).and_return(successful_response) }
+        before { allow_any_instance_of(Faraday::Connection).to receive(:put).and_return(successful_response) }
 
         it 'returns credit_card information' do
           response = client.v2_update_card_by_token(token, request_params)
-          expect(response.holder).to eq ('John Doe')
-          expect(response.token).to eq ('7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af')
+          expect(response.holder).to eq 'John Doe'
+          expect(response.token).to eq '7ba647e7013b5cb9df39f17c375783aef81bc8c20f221b962becbd0686cc33af'
         end
       end
     end
   end
 
-  describe "transaction" do
+  describe 'transactions' do
     let(:client) { described_class.new(params) }
     let(:request_params) do
       {
@@ -78,79 +78,79 @@ describe BeGateway::Client do
         'tracking_id' => 'your_uniq_number',
         'language' => 'en',
         'billing_address' => {
-           'first_name' => 'John',
-           'last_name' => 'Doe',
-           'country' => 'US',
-           'city' => 'Denver',
-           'state' => 'CO',
-           'zip' => '96002',
-           'address' => '1st Street'
+          'first_name' => 'John',
+          'last_name' => 'Doe',
+          'country' => 'US',
+          'city' => 'Denver',
+          'state' => 'CO',
+          'zip' => '96002',
+          'address' => '1st Street'
         },
         'credit_card' => {
-           'number' => '4200000000000000',
-           'verification_value' => '123',
-           'holder' => 'John Doe',
-           'exp_month' => '05',
-           'exp_year' => '2020'
+          'number' => '4200000000000000',
+          'verification_value' => '123',
+          'holder' => 'John Doe',
+          'exp_month' => '05',
+          'exp_year' => '2020'
         },
         'customer' => {
-           'ip' => '127.0.0.1',
-           'email' => 'john@example.com'
+          'ip' => '127.0.0.1',
+          'email' => 'john@example.com'
         }
       }
     end
 
-    context "successful request" do
-      let(:response_body) {
+    context 'successful request' do
+      let(:response_body) do
         {
           'transaction' => {
-             'customer' => {
-                'ip' => '127.0.0.1',
-                'email' => 'john@example.com'
-             },
-             'credit_card' => {
-                'holder' => 'John Doe',
-                'stamp' => '3709786942408b77017a3aac8390d46d77d181e34554df527a71919a856d0f28',
-                'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e',
-                'brand' => 'visa',
-                'last_4' => '0000',
-                'first_1' => '4',
-                'exp_month' => 5,
-                'exp_year' => 2015
-             },
-             'billing_address' => {
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'address' => '1st Street',
-                'country' => 'US',
-                'city' => 'Denver',
-                'zip' => '96002',
-                'state' => 'CO'
-             },
-             'authorization' => {
-                'auth_code' => '654321',
-                'bank_code' => '00',
-                'rrn' => '999',
-                'ref_id' => '777888',
-                'message' => 'The operation was successfully processed.',
-                'gateway_id' => 317,
-                'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
-                'status' => 'successful'
-             },
-             'uid' => '4107-310b0da80b',
-             'status' => 'successful',
-             'message' => 'Successfully processed',
-             'amount' => 100,
-             'currency' => 'USD',
-             'description' => 'Test order',
-             'type' => 'authorization',
-             'tracking_id' => 'your_uniq_number',
-             'language' => 'en'
+            'customer' => {
+              'ip' => '127.0.0.1',
+              'email' => 'john@example.com'
+            },
+            'credit_card' => {
+              'holder' => 'John Doe',
+              'stamp' => '3709786942408b77017a3aac8390d46d77d181e34554df527a71919a856d0f28',
+              'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e',
+              'brand' => 'visa',
+              'last_4' => '0000',
+              'first_1' => '4',
+              'exp_month' => 5,
+              'exp_year' => 2015
+            },
+            'billing_address' => {
+              'first_name' => 'John',
+              'last_name' => 'Doe',
+              'address' => '1st Street',
+              'country' => 'US',
+              'city' => 'Denver',
+              'zip' => '96002',
+              'state' => 'CO'
+            },
+            'authorization' => {
+              'auth_code' => '654321',
+              'bank_code' => '00',
+              'rrn' => '999',
+              'ref_id' => '777888',
+              'message' => 'The operation was successfully processed.',
+              'gateway_id' => 317,
+              'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
+              'status' => 'successful'
+            },
+            'uid' => '4107-310b0da80b',
+            'status' => 'successful',
+            'message' => 'Successfully processed',
+            'amount' => 100,
+            'currency' => 'USD',
+            'description' => 'Test order',
+            'type' => 'authorization',
+            'tracking_id' => 'your_uniq_number',
+            'language' => 'en'
           }
         }
-      }
+      end
       let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
-      before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
 
       it 'returns transaction information' do
         response = client.authorize(request_params)
@@ -164,7 +164,7 @@ describe BeGateway::Client do
         expect(response.transaction['uid']).to eq('4107-310b0da80b')
       end
 
-      describe "#authorize" do
+      describe '#authorize' do
         it 'sends authorization request' do
           response = client.authorize(request_params)
 
@@ -173,7 +173,7 @@ describe BeGateway::Client do
         end
       end
 
-      describe "#payment" do
+      describe '#payment' do
         before do
           response_body['transaction'].tap do |hsh|
             hsh.delete('authorization')
@@ -200,26 +200,26 @@ describe BeGateway::Client do
         end
       end
 
-      context "child" do
+      context 'child' do
         %w(capture void refund).each do |tr_type|
           describe "##{tr_type}" do
-            let(:request_params) {
+            let(:request_params) do
               {}.tap do |hsh|
                 hsh['parent_uid'] = '4107-310b0da80b',
-                hsh['amount'] = 100
+                                    hsh['amount'] = 100
                 hsh['reason'] = 'Client request' if tr_type == 'refund'
               end
-            }
+            end
             before do
               response_body['transaction'].tap do |hsh|
                 hsh.delete('authorization')
-                hsh["#{tr_type}"] = {
+                hsh[tr_type.to_s] = {
                   'message' => 'The operation was successfully processed.',
                   'ref_id' => '8889999',
                   'gateway_id' => 152,
                   'status' => 'successful'
                 }
-                hsh["type"] = tr_type
+                hsh['type'] = tr_type
               end
             end
 
@@ -233,19 +233,19 @@ describe BeGateway::Client do
         end
       end
 
-      context "#credit" do
-        let(:request_params) {
+      context '#credit' do
+        let(:request_params) do
           {
             'amount' => 100,
             'currency' => 'USD',
             'description' => 'Test transaction',
             'tracking_id' => 'tracking_id_000',
-            'language' =>'en',
+            'language' => 'en',
             'credit_card' => {
               'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e'
             }
           }
-        }
+        end
 
         before do
           response_body['transaction'].tap do |hsh|
@@ -273,9 +273,9 @@ describe BeGateway::Client do
         end
       end
 
-      context "other" do
-        context "#query" do
-          before { allow(client).to receive(:get).with(any_args).and_return(successful_response) }
+      context 'other' do
+        context '#query' do
+          before { allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(successful_response) }
           let(:request_params) { { id: '4107-310b0da80b' } }
 
           it 'sends query request' do
@@ -287,7 +287,7 @@ describe BeGateway::Client do
           end
         end
 
-        context "#checkup" do
+        context '#checkup' do
           before do
             response_body['transaction'].tap do |hsh|
               hsh['be_protected_verification'] = {
@@ -299,8 +299,8 @@ describe BeGateway::Client do
                 },
                 'rules' => {
                   '1_123_My Shop' => {
-                    'more_100_eur' => {'Transaction amount more than 100 AND Transaction currency is EUR' => 'passed'}
-                  },
+                    'more_100_eur' => { 'Transaction amount more than 100 AND Transaction currency is EUR' => 'passed' }
+                  }
                 }
               }
             end
@@ -314,7 +314,7 @@ describe BeGateway::Client do
           end
         end
 
-        context "#close_days" do
+        context '#close_days' do
           context 'when gateway support close_days transaction' do
             let(:response_body) do
               {
@@ -327,7 +327,7 @@ describe BeGateway::Client do
             end
 
             let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
-            before { allow(client).to receive(:post).with(any_args).and_return(successful_response) }
+            before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
 
             it 'sends close_days request' do
               response = client.close_days(gateway_id: 1)
@@ -343,18 +343,18 @@ describe BeGateway::Client do
               {
                 'response' => {
                   'message' => 'Gateway does not support closing day transaction',
-                  'errors' => { 'base' => 'Transaction is not supported'}
+                  'errors' => { 'base' => 'Transaction is not supported' }
                 }
               }
             end
             let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
 
-            before { allow(client).to receive(:post).with(any_args).and_return(failed_response) }
+            before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(failed_response) }
 
             it 'gets unsupported action response' do
               response = client.close_days(gateway_id: 1)
 
-              expect(response.message).to eq("Gateway does not support closing day transaction")
+              expect(response.message).to eq('Gateway does not support closing day transaction')
               expect(response.errors.base).to eq('Transaction is not supported')
             end
           end
@@ -362,7 +362,7 @@ describe BeGateway::Client do
       end
     end
 
-    context "failed request" do
+    context 'failed request' do
       let(:response_body) do
         {
           'response' => {
@@ -385,7 +385,7 @@ describe BeGateway::Client do
       end
 
       let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
-      before { allow(client).to receive(:post).with(any_args).and_return(failed_response) }
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(failed_response) }
 
       it 'returns errors' do
         response = client.authorize(request_params)

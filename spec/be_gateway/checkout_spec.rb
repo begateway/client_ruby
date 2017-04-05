@@ -42,7 +42,7 @@ describe BeGateway::Checkout do
     let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
 
     context "successful request" do
-      before { allow(checkout).to receive(:post).with(any_args).and_return(successful_response) }
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
 
       describe "#get_token" do
         let(:response_body) do
@@ -102,7 +102,7 @@ describe BeGateway::Checkout do
         end
 
         before do
-          allow(checkout).to receive(:get)
+          allow_any_instance_of(Faraday::Connection).to receive(:get)
             .with('3241e439f8c87d941d92621a4bdc030d4c9a69c67f3b0cfe12de4a13cc34aa51')
             .and_return(successful_response)
         end
@@ -134,7 +134,7 @@ describe BeGateway::Checkout do
       end
 
       let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
-      before { allow(checkout).to receive(:post).with(any_args).and_return(failed_response) }
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(failed_response) }
 
       context "#get_token" do
         it 'gets errors and error message' do

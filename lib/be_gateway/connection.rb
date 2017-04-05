@@ -21,7 +21,7 @@ module BeGateway
 
     attr_reader :login, :password, :url
 
-    def make_response(response)
+    def handle_response(response)
       (200..299).include?(response.status) ? Response.new(response.body) : ErrorResponse.new(response.body)
     end
 
@@ -38,11 +38,11 @@ module BeGateway
     end
 
     def send_request(method, path, params = nil)
-      begin
-        connection.public_send(method, path, params)
-      rescue Faraday::Error::ClientError
-        OpenStruct.new(
-          {
+      handle_response(
+        begin
+          connection.public_send(method, path, params)
+        rescue Faraday::Error::ClientError
+          OpenStruct.new(
             status: 500,
             body: {
               'response' => {
@@ -52,9 +52,9 @@ module BeGateway
                 }
               }
             }
-          }
-        )
-      end
+          )
+        end
+      )
     end
 
     def connection
@@ -69,9 +69,7 @@ module BeGateway
 
         conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
-        if !stub_app && !rack_app
-          conn.adapter Faraday.default_adapter
-        end
+        conn.adapter Faraday.default_adapter if !stub_app && !rack_app
       end
     end
 
