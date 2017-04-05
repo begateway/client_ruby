@@ -200,6 +200,62 @@ describe BeGateway::Client do
         end
       end
 
+      describe '#tokenization' do
+        let(:response_body) do
+          {
+            'transaction' => {
+              'customer' => {
+                'ip' => '127.0.0.1',
+                'email' => 'john@example.com'
+              },
+              'credit_card' => {
+                'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e'
+              },
+              'billing_address' => {
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'address' => '1st Street',
+                'country' => 'US',
+                'city' => 'Denver',
+                'zip' => '96002',
+                'state' => 'CO'
+              },
+              'three_d_secure_verification' => {
+                'eci' => '05',
+                'pa_status' => 'Y',
+                'xid' => 'Tk1CMjcyM0g0NFpZMlpWUzE2RlU=',
+                'cavv' => 'AAACAQJwJTd4hwE5SHAlEwAAAAA=',
+                'cavv_algorithm' => '2',
+                'fail_reason' => nil,
+                've_status' => 'Y',
+                'message' => 'Authentication Successful',
+                'status' => 'successful'
+              },
+              'uid' => '4107-310b0da80b',
+              'status' => 'successful',
+              'message' => 'Successfully processed',
+              'amount' => 100,
+              'currency' => 'USD',
+              'description' => 'Test order',
+              'type' => 'tokenization',
+              'tracking_id' => 'your_uniq_number',
+              'language' => 'en'
+            }
+          }
+        end
+        let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+        before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
+
+        it 'returns transaction information among with credit card token' do
+          response = client.tokenization(request_params)
+
+          expect(response.transaction.uid).to eq('4107-310b0da80b')
+          expect(response.transaction.credit_card['token'])
+            .to eq('40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e')
+        end
+      end
+
       context 'child' do
         %w(capture void refund).each do |tr_type|
           describe "##{tr_type}" do
