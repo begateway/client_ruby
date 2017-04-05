@@ -261,8 +261,8 @@ describe BeGateway::Client do
           describe "##{tr_type}" do
             let(:request_params) do
               {}.tap do |hsh|
-                hsh['parent_uid'] = '4107-310b0da80b',
-                                    hsh['amount'] = 100
+                hsh['parent_uid'] = '4107-310b0da80b'
+                hsh['amount'] = 100
                 hsh['reason'] = 'Client request' if tr_type == 'refund'
               end
             end
