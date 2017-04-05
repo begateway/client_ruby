@@ -7,18 +7,18 @@ module BeGateway
 
     TRANSACTIONS.each do |tr_type|
       define_method tr_type.to_sym do |params|
-        post(transaction_url(tr_type), request: params)
+        send_request('post', action_url(tr_type), request: params)
       end
     end
 
     def query(params)
       path = params[:tracking_id] ? "/transactions/tracking_id/#{params[:tracking_id]}" : "/transactions/#{params[:id]}"
-      get(path)
+      send_request('get', path)
     end
 
     def close_days(params)
       path = '/transactions/close_days'
-      post(path, request: params)
+      send_request('post', path, request: params)
     end
 
     def notification(params)
@@ -26,24 +26,24 @@ module BeGateway
     end
 
     def create_card(params)
-      post('/credit_cards', request: params)
+      send_request('post', '/create_card', request: params)
     end
 
     def update_card_by_token(token, params)
-      post("/credit_cards/#{token}", request: params)
+      send_request('post', "/credit_cards/#{token}", request: params)
     end
 
     def v2_create_card(params)
-      post('/v2/credit_cards', request: params)
+      send_request('post', '/v2/credit_cards', request: params)
     end
 
     def v2_update_card_by_token(token, params)
-      put("/v2/credit_cards/#{token}", request: params)
+      send_request('put', "/v2/credit_cards/#{token}", request: params)
     end
 
     private
 
-    def transaction_url(tr_type)
+    def action_url(tr_type)
       if tr_type == 'authorize'
         '/transactions/authorizations'
       else

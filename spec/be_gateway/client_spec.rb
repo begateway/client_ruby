@@ -25,8 +25,8 @@ describe BeGateway::Client do
           'request' => {
             'number' => '4200000000000000',
             'holder' => 'John Smith',
-            'exp_month' => 0o5,
-            'exp_year' => 2019,
+            'exp_month' => '05',
+            'exp_year' => '2019',
             'public_key' => 'public_key'
           }
         }

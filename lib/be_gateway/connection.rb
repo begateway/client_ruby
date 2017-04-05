@@ -4,7 +4,7 @@ module BeGateway
     extend Forwardable
     def_delegators :connection, :headers, :headers=
 
-    attr_reader :options
+    attr_reader :opts
 
     included do
       cattr_accessor :rack_app, :stub_app, :proxy
@@ -14,59 +14,39 @@ module BeGateway
       @login = params.fetch(:shop_id)
       @password = params.fetch(:secret_key)
       @url = params.fetch(:url)
-      @options = params[:options] || {}
+      @opts = params[:options] || {}
     end
 
     private
 
     attr_reader :login, :password, :url
 
-    def handle_response(response)
-      (200..299).include?(response.status) ? Response.new(response.body) : ErrorResponse.new(response.body)
-    end
-
-    def post(path, params)
-      send_request('post', path, params)
-    end
-
-    def put(path, params)
-      send_request('put', path, params)
-    end
-
-    def get(path)
-      send_request('get', path)
-    end
-
     def send_request(method, path, params = nil)
-      handle_response(
-        begin
-          connection.public_send(method, path, params)
-        rescue Faraday::Error::ClientError
-          OpenStruct.new(
-            status: 500,
-            body: {
-              'response' => {
-                'message' => 'Gateway is temporarily unavailable',
-                'errors' => {
-                  'gateway' => 'is temporarily unavailable'
+      r = begin
+            connection.public_send(method, path, params)
+          rescue Faraday::Error::ClientError
+            OpenStruct.new(
+              status: 500,
+              body: {
+                'response' => {
+                  'message' => 'Gateway is temporarily unavailable',
+                  'errors' => {
+                    'gateway' => 'is temporarily unavailable'
+                  }
                 }
               }
-            }
-          )
-        end
-      )
+            )
+          end
+      (200..299).cover?(r.status) ? Response.new(r.body) : ErrorResponse.new(r.body)
     end
 
     def connection
-      @connection ||= Faraday.new(url, options || {}) do |conn|
+      @connection ||= Faraday.new(url, opts || {}) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
-
         conn.response :json
         conn.response :logger, logger
-
         conn.proxy(proxy) if proxy
-
         conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
         conn.adapter Faraday.default_adapter if !stub_app && !rack_app
@@ -74,9 +54,7 @@ module BeGateway
     end
 
     def logger
-      log = options[:logger] || Logger.new(STDOUT)
-      log.level = Logger::INFO
-      log
+      (opts[:logger] || Logger.new(STDOUT)).tap { |l| l.level = Logger::INFO }
     end
   end
 end
