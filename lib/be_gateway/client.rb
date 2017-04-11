@@ -26,7 +26,7 @@ module BeGateway
     end
 
     def create_card(params)
-      send_request('post', '/create_card', request: params)
+      send_request('post', '/credit_cards', request: params)
     end
 
     def update_card_by_token(token, params)
