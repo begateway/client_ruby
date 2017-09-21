@@ -41,12 +41,12 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday.new(url, opts || {}) do |conn|
+      @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
         conn.request :json
         conn.request :basic_auth, login, password
         conn.response :json
         conn.response :logger, logger
-        conn.proxy(proxy) if proxy
+        conn.options[:proxy] if proxy
         conn.adapter :test, stub_app if stub_app
         conn.adapter :rack, rack_app.new if rack_app
         conn.adapter Faraday.default_adapter if !stub_app && !rack_app
