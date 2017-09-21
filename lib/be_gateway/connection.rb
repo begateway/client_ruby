@@ -42,6 +42,8 @@ module BeGateway
 
     def connection
       @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
+        conn.options[:open_timeout] = 5
+        conn.options[:timeout] = 10
         conn.request :json
         conn.request :basic_auth, login, password
         conn.response :json
