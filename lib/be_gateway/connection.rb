@@ -44,14 +44,18 @@ module BeGateway
       @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
         conn.options[:open_timeout] = 5
         conn.options[:timeout] = 10
+        conn.options[:proxy] = proxy if proxy
         conn.request :json
         conn.request :basic_auth, login, password
         conn.response :json
         conn.response :logger, logger
-        conn.options[:proxy] if proxy
-        conn.adapter :test, stub_app if stub_app
-        conn.adapter :rack, rack_app.new if rack_app
-        conn.adapter Faraday.default_adapter if !stub_app && !rack_app
+        if stub_app
+          conn.adapter :test, stub_app
+        elsif rack_app
+          conn.adapter :rack, rack_app.new
+        else
+          conn.adapter Faraday.default_adapter
+        end
       end
     end
 
