@@ -181,7 +181,7 @@ response.required_fields["recipient_card"] # => returns required fields for reci
 response.commission  # => returns commission. Example: { "minimum" => 0.7, "percent" => 1.5, "currency":"USD" }
 response.commission["minimum"] # => 0.7
 response.error_code   # => returns error code or nil
-response.errors       # => retursn array of errors fields or nil
+response.errors       # => returns array of errors fields or nil
 response.errors["amount"] # => ["must be an integer"]
 response.errors["recipient_card"]  # => { "number" => ["is not a card number"] }
 ```
