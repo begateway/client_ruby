@@ -148,14 +148,6 @@ response.transaction.id # => returns id of processed transaciton
 response.transaction.status # => returns status of processed transaciton
 ```
 
-### Transaction Capture/Void
-
-``` ruby
-response = client.capture(params)
-response = client.void(params)
-```
-Where `params` have same structure as **Refund**
-
 ### Verify P2p
 
 ``` ruby
