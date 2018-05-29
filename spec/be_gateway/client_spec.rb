@@ -17,6 +17,79 @@ describe BeGateway::Client do
     end
   end
 
+  describe 'verify_p2p' do
+    let(:client) { described_class.new(params) }
+    let(:request_params) do
+      {
+        "amount"   => 100,
+        "currency" => "USD",
+        "credit_card"    => { "number" => "4012001037141112" },
+        "recipient_card" => { "number" => "4200000000000000" },
+        "test" => true
+      }
+    end
+    let(:response_body) do
+      {
+        "status"  => "successful",
+        "message" => "p2p is allowed",
+        "required_fields" => {
+          "credit_card"    => ["holder"],
+          "recipient_card" => ["holder"]
+        },
+        "commission" => { "minimum" => 0.7, "percent" => 1.5, "currency":"USD" }
+      }
+    end
+    let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+    before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
+
+    it 'verifies p2p' do
+      response = client.verify_p2p(request_params)
+
+      expect(response.status).to eq('successful')
+      expect(response.successful?).to be true
+      expect(response.message).to eq('p2p is allowed')
+
+      expect(response.required_fields['recipient_card']).to eq(['holder'])
+      expect(response.commission['minimum']).to eq(0.7)
+      expect(response.commission['percent']).to eq(1.5)
+
+      expect(response.error?).to be false
+      expect(response.error_code).to be nil
+      expect(response.errors).to be nil
+    end
+
+    context 'when response is error' do
+      let(:response_body) do
+      {
+        "message" => "Unprocessable entity",
+        "errors" => {
+            "amount"    => ["must be an integer"],
+            "currency"  => ["is unknown ISO 4217 Alpha-3 code"],
+            "credit_card"    => {"number" => ["is not a card number"]},
+            "recipient_card" => {"number" => ["is not a card number"]}
+        },
+        "error_code" => "invalid_params"
+      }
+    end
+
+      it "returns errors" do
+        response = client.verify_p2p(request_params)
+
+        expect(response.successful?).to be false
+        expect(response.message).to eq('Unprocessable entity')
+
+        expect(response.error?).to be true
+        expect(response.error_code).to eq('invalid_params')
+        expect(response.errors["amount"]).to eq(['must be an integer'])
+        expect(response.errors["currency"]).to eq(['is unknown ISO 4217 Alpha-3 code'])
+
+        expect(response.errors["credit_card"]["number"]).to eq(['is not a card number'])
+        expect(response.errors["recipient_card"]["number"]).to eq(['is not a card number'])
+      end
+    end
+  end
+
   describe 'credit card' do
     context 'v2' do
       let(:client) { described_class.new(params) }

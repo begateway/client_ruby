@@ -40,6 +40,7 @@ client = BeGateway::Client.new({
 * payout
 * fraud_advice
 * p2p
+* verify_p2p
 
 **Pay attention** that client add main **'request'** section automatically, and you don't need to describe it
 
@@ -145,6 +146,44 @@ response = client.query(tracking_id: 'your tracking id')
 
 response.transaction.id # => returns id of processed transaciton
 response.transaction.status # => returns status of processed transaciton
+```
+
+### Transaction Capture/Void
+
+``` ruby
+response = client.capture(params)
+response = client.void(params)
+```
+Where `params` have same structure as **Refund**
+
+### Verify P2p
+
+``` ruby
+response = client.verify_p2p({
+  amount: 100,
+  currency: "USD",
+  tracking_id: "tracking_id_000",
+  credit_card: {
+    number: "4012001037141112"
+  },
+  recipient_card: {
+    number: "4200000000000000"
+  },
+  test: true
+})
+
+response.successful?  # => returns true or false
+response.error?       # => returns true or false
+response.message      # => returns response message
+response.required_fields # => returns array of additional required fields for credit_card and recipient_card
+response.required_fields["credit_card"]    # => returns required fields for credit_card
+response.required_fields["recipient_card"] # => returns required fields for recipient_card. For example: ["holder"]
+response.commission  # => returns commission. Example: { "minimum" => 0.7, "percent" => 1.5, "currency":"USD" }
+response.commission["minimum"] # => 0.7
+response.error_code   # => returns error code or nil
+response.errors       # => retursn array of errors fields or nil
+response.errors["amount"] # => ["must be an integer"]
+response.errors["recipient_card"]  # => { "number" => ["is not a card number"] }
 ```
 
 ## Contributing
