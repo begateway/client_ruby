@@ -21,6 +21,9 @@ module BeGateway
 
     attr_reader :login, :password, :url
 
+    DEFAULT_OPEN_TIMEOUT = 5
+    DEFAULT_TIMEOUT = 25
+
     def send_request(method, path, params = nil)
       r = begin
             connection.public_send(method, path, params)
@@ -42,8 +45,8 @@ module BeGateway
 
     def connection
       @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
-        conn.options[:open_timeout] ||= 5
-        conn.options[:timeout] ||= 10
+        conn.options[:open_timeout] ||= DEFAULT_OPEN_TIMEOUT
+        conn.options[:timeout] ||= DEFAULT_TIMEOUT
         conn.options[:proxy] = proxy if proxy
         conn.request :json
         conn.request :basic_auth, login, password
