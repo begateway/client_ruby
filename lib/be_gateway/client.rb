@@ -11,6 +11,10 @@ module BeGateway
       end
     end
 
+    def verify_p2p(params)
+      BeGateway::VerifyP2p.new(send_request('post', '/p2p-restrictions', request: params).to_params)
+    end
+
     def query(params)
       path = params[:tracking_id] ? "/transactions/tracking_id/#{params[:tracking_id]}" : "/transactions/#{params[:id]}"
       send_request('get', path)

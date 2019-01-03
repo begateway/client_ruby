@@ -17,6 +17,82 @@ describe BeGateway::Client do
     end
   end
 
+  describe 'verify_p2p' do
+    let(:client) { described_class.new(params) }
+    let(:request_params) do
+      {
+        "amount"   => 100,
+        "currency" => "USD",
+        "credit_card"    => { "number" => "4012001037141112" },
+        "recipient_card" => { "number" => "4200000000000000" },
+        "test" => true
+      }
+    end
+    let(:response_body) do
+      {
+        "status"  => "successful",
+        "message" => "p2p is allowed",
+        "required_fields" => {
+          "credit_card"    => ["holder"],
+          "recipient_card" => ["holder"]
+        },
+        "commission" => { "minimum" => 0.7, "percent" => 1.5, "currency":"USD" }
+      }
+    end
+    let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+    before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
+
+    it 'verifies p2p' do
+      response = client.verify_p2p(request_params)
+
+      expect(response.status).to eq('successful')
+      expect(response.successful?).to be true
+      expect(response.message).to eq('p2p is allowed')
+
+      expect(response.required_fields['recipient_card']).to eq(['holder'])
+      expect(response.commission['minimum']).to eq(0.7)
+      expect(response.commission['percent']).to eq(1.5)
+
+      expect(response.error?).to be false
+      expect(response.error_code).to be nil
+      expect(response.errors).to be nil
+    end
+
+    context 'when response is error' do
+      let(:response_body) do
+        {
+          "message" => "Unprocessable entity",
+          "errors" => {
+            "amount"    => ["must be an integer"],
+            "currency"  => ["is unknown ISO 4217 Alpha-3 code"],
+            "credit_card"    => {"number" => ["is not a card number"]},
+            "recipient_card" => {"number" => ["is not a card number"]}
+          },
+          "error_code" => "invalid_params"
+        }
+      end
+      let(:error_response) { OpenStruct.new(status: 422, body: response_body) }
+
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(error_response) }
+
+      it "returns errors" do
+        response = client.verify_p2p(request_params)
+
+        expect(response.successful?).to be false
+        expect(response.message).to eq('Unprocessable entity')
+
+        expect(response.error?).to be true
+        expect(response.error_code).to eq('invalid_params')
+        expect(response.errors["amount"]).to eq(['must be an integer'])
+        expect(response.errors["currency"]).to eq(['is unknown ISO 4217 Alpha-3 code'])
+
+        expect(response.errors["credit_card"]["number"]).to eq(['is not a card number'])
+        expect(response.errors["recipient_card"]["number"]).to eq(['is not a card number'])
+      end
+    end
+  end
+
   describe 'credit card' do
     context 'v2' do
       let(:client) { described_class.new(params) }
@@ -197,6 +273,64 @@ describe BeGateway::Client do
           expect(response.transaction['type']).to eq('payment')
           expect(response.transaction['payment']['auth_code']).to eq('654321')
           expect(response.transaction['payment']['bank_code']).to eq('00')
+        end
+      end
+
+      describe '#p2p' do
+        context 'when response is successful' do
+          before do
+            response_body['transaction'].tap do |hsh|
+              hsh.delete('authorization')
+              hsh['p2p'] = {
+                'auth_code' => '654321',
+                'bank_code' => '00',
+                'rrn' => '999',
+                'ref_id' => '777888',
+                'message' => 'The operation was successfully processed.',
+                'gateway_id' => 317,
+                'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
+                'status' => 'successful'
+              }
+              hsh['verify_p2p'] = {"status" => "successful", "message" => "p2p is allowed",
+                "amount" => 100, "currency" => "USD", "bank_fee" => 1.05, "required_fields" => nil}
+              hsh['type'] = 'p2p'
+            end
+          end
+
+          it 'sends p2p request' do
+            response = client.p2p(request_params)
+
+            expect(response.transaction['type']).to eq('p2p')
+            expect(response.transaction['p2p']['auth_code']).to eq('654321')
+            expect(response.transaction['p2p']['bank_code']).to eq('00')
+
+            expect(response.transaction.verify_p2p['bank_fee']).to eq(1.05)
+          end
+        end
+
+        context 'when response is error' do
+          let(:response_body) do
+            {
+              "response" => {
+                "message" => "Number is invalid.",
+                "errors"  => {
+                  "recipient_card" => {"number" => ["is not a card number"]}
+                }
+              }
+            }
+          end
+          let(:failed_response) { OpenStruct.new(status: 422, body: response_body) }
+
+          before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(failed_response) }
+
+          it "returns errors" do
+            response = client.p2p(request_params)
+
+            expect(response.invalid?).to be true
+            expect(response.status).to eq('error')
+            expect(response.message).to eq('Number is invalid.')
+            expect(response.errors["recipient_card"]["number"]).to eq(['is not a card number'])
+          end
         end
       end
 
