@@ -15,7 +15,10 @@ module BeGateway
       @password = params.fetch(:secret_key)
       @url = params.fetch(:url)
       @opts = params[:options] || {}
+      @passed_headers = params[:headers]
     end
+
+    attr_reader :passed_headers
 
     private
 
@@ -48,6 +51,7 @@ module BeGateway
         conn.options[:open_timeout] ||= DEFAULT_OPEN_TIMEOUT
         conn.options[:timeout] ||= DEFAULT_TIMEOUT
         conn.options[:proxy] = proxy if proxy
+        conn.headers = passed_headers if passed_headers
         conn.request :json
         conn.request :basic_auth, login, password
         conn.response :json

@@ -10,10 +10,23 @@ describe BeGateway::Client do
   end
 
   describe '#initialize' do
-    before { params.delete(:shop_id) }
+    context 'when absent required attribute' do
+      before { params.delete(:shop_id) }
 
-    it 'raises error for required attributes' do
-      expect { described_class.new(params) }.to raise_error('key not found: :shop_id')
+      it 'raises error for required attributes' do
+        expect { described_class.new(params) }.to raise_error('key not found: :shop_id')
+      end
+    end
+
+    context 'when passed headers' do
+      let(:headers) { {'RequestID' => 'some-id'} }
+
+      before { params[:headers] = headers }
+
+      it 'sets up to passed_headers attribute reader' do
+        client = described_class.new(params)
+        expect(client.passed_headers).to eq headers
+      end
     end
   end
 
