@@ -9,6 +9,18 @@ describe BeGateway::Client do
     }
   end
 
+  describe '.logger=' do
+    let(:logger) { double('logger') }
+
+    after { described_class.logger = nil }
+
+    it "sets logger" do
+      described_class.logger = logger
+
+      expect(described_class.logger).to eq logger
+    end
+  end
+
   describe '#initialize' do
     context 'when absent required attribute' do
       before { params.delete(:shop_id) }

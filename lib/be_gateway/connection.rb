@@ -7,7 +7,7 @@ module BeGateway
     attr_reader :opts
 
     included do
-      cattr_accessor :rack_app, :stub_app, :proxy
+      cattr_accessor :rack_app, :stub_app, :proxy, :logger
     end
 
     def initialize(params)
@@ -30,7 +30,9 @@ module BeGateway
     def send_request(method, path, params = nil)
       r = begin
             connection.public_send(method, path, params)
-          rescue Faraday::Error::ClientError
+          rescue Faraday::Error::ClientError => e
+            logger.error("Connection error to '#{path}': #{e}") if logger
+
             OpenStruct.new(
               status: 500,
               body: {
@@ -43,6 +45,9 @@ module BeGateway
               }
             )
           end
+
+      logger.info("[beGateway client response body] #{r.body}") if logger
+
       (200..299).cover?(r.status) ? Response.new(r.body) : ErrorResponse.new(r.body)
     end
 
