@@ -7,7 +7,7 @@ module BeGateway
     attr_reader :opts
 
     included do
-      cattr_accessor :rack_app, :stub_app, :proxy, :logger
+      cattr_accessor :stub_app, :proxy, :logger
     end
 
     def initialize(params)
@@ -15,6 +15,7 @@ module BeGateway
       @password = params.fetch(:secret_key)
       @url = params.fetch(:url)
       @opts = params[:options] || {}
+      @rack_app = params[:rack_app]
       @passed_headers = params[:headers]
     end
 
@@ -22,7 +23,7 @@ module BeGateway
 
     private
 
-    attr_reader :login, :password, :url
+    attr_reader :login, :password, :url, :rack_app
 
     DEFAULT_OPEN_TIMEOUT = 5
     DEFAULT_TIMEOUT = 25
