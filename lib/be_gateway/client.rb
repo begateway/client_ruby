@@ -49,6 +49,7 @@ module BeGateway
 
     def action_url(tr_type)
       if tr_type == 'authorize'
+        logger.warn "Method 'authorize' was deprecated! Please, use 'authorization' for BeGateway::Client." if logger
         '/transactions/authorizations'
       else
         "/transactions/#{tr_type}s"
