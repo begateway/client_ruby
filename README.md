@@ -29,7 +29,8 @@ client = BeGateway::Client.new({
 ```
 
 ### Availibale actions:
-* authorize
+* authorization
+* authorize (*DEPRECATED*)
 * capture
 * void
 * payment
@@ -47,7 +48,7 @@ client = BeGateway::Client.new({
 ### Transaction Authorization example
 
 ``` ruby
-response = client.authorize({
+response = client.authorization({
   amount: 100,
   currency: 'USD',
   description: 'Test transaction',
