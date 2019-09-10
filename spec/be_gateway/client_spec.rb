@@ -274,6 +274,15 @@ describe BeGateway::Client do
         end
       end
 
+      describe '#authorization' do
+        it 'sends authorization request' do
+          response = client.authorization(request_params)
+
+          expect(response.transaction['type']).to eq('authorization')
+          expect(response.transaction['authorization']['auth_code']).to eq('654321')
+        end
+      end
+
       describe '#payment' do
         before do
           response_body['transaction'].tap do |hsh|

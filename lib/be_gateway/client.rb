@@ -2,7 +2,7 @@ module BeGateway
   class Client
     include Connection
 
-    TRANSACTIONS = %w(authorize capture void payment credit payout chargeback
+    TRANSACTIONS = %w(authorize authorization capture void payment credit payout chargeback
                       fraud_advice refund checkup p2p tokenization).freeze
 
     TRANSACTIONS.each do |tr_type|
