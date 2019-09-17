@@ -3,7 +3,8 @@ module BeGateway
     include Connection
 
     def get_token(params)
-      send_request('post', '/ctp/api/checkouts', checkout: params.merge('version' => '2.1'))
+      params['version'] ||= '2.1'
+      send_request('post', '/ctp/api/checkouts', checkout: params)
     end
 
     def query(token)
