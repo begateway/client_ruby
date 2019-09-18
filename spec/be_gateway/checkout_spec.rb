@@ -13,6 +13,7 @@ describe BeGateway::Checkout do
   describe "checkout" do
     let(:request_params) do
       {
+        'version' => '2.1',
         'transaction_type' => 'payment',
         'settings' => {
           'success_url' => 'http://127.0.0.1:4567/success',
