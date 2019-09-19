@@ -13,7 +13,6 @@ describe BeGateway::Checkout do
   describe "checkout" do
     let(:request_params) do
       {
-        'version' => '2.1',
         'transaction_type' => 'payment',
         'settings' => {
           'success_url' => 'http://127.0.0.1:4567/success',
@@ -43,7 +42,12 @@ describe BeGateway::Checkout do
     let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
 
     context "successful request" do
-      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
+      before do
+        allow_any_instance_of(Faraday::Connection)
+          .to receive(:post)
+          .with('/ctp/api/checkouts', checkout: request_params.merge(:version => '2.1'))
+          .and_return(successful_response)
+      end
 
       describe "#get_token" do
         let(:response_body) do
