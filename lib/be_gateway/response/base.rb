@@ -1,13 +1,16 @@
 module BeGateway
   class Base < OpenStruct
-    def initialize(response)
-      @params = response
+    attr_reader :code
 
-      super(response)
+    def initialize(response)
+      @code = response.status
+      @params = response.body
+
+      super(response.body)
     end
 
     def to_params
-      params
+      params.merge('code' => code)
     end
 
     private
