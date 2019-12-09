@@ -3,14 +3,14 @@ module BeGateway
     attr_reader :code
 
     def initialize(response)
-      @code = response.code
+      @code = response.status
       @params = response.body
 
       super(response.body)
     end
 
     def to_params
-      params
+      params.merge('code' => code)
     end
 
     private

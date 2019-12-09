@@ -71,6 +71,7 @@ describe BeGateway::Client do
     it 'verifies p2p' do
       response = client.verify_p2p(request_params)
 
+      expect(response.code).to eq 200
       expect(response.status).to eq('successful')
       expect(response.successful?).to be true
       expect(response.message).to eq('p2p is allowed')
@@ -104,6 +105,7 @@ describe BeGateway::Client do
       it "returns errors" do
         response = client.verify_p2p(request_params)
 
+        expect(response.code).to eq 422
         expect(response.successful?).to be false
         expect(response.message).to eq('Unprocessable entity')
 
@@ -256,6 +258,7 @@ describe BeGateway::Client do
       it 'returns transaction information' do
         response = client.authorize(request_params)
 
+        expect(response.code).to eq 200
         expect(response.successful?).to eq(true)
         expect(response.transaction['currency']).to eq('USD')
         expect(response.transaction['amount']).to eq(100)
