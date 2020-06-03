@@ -45,6 +45,16 @@ module BeGateway
       send_request('put', "/v2/credit_cards/#{token}", request: params)
     end
 
+    def renotify(params)
+      path = "/transactions/#{params[:uid]}/renotify"
+      send_request('post', path, request: params)
+    end
+
+    def recover(params)
+      path = "/transactions/#{params[:uid]}/recover"
+      send_request('post', path, request: params)
+    end
+
     private
 
     def action_url(tr_type)
