@@ -621,4 +621,39 @@ describe BeGateway::Client do
       end
     end
   end
+
+  describe 'Transaction Recovery Service' do
+    let(:client) { described_class.new(params) }
+    let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+    before do 
+      allow_any_instance_of(Faraday::Connection).to receive(:post)
+                                                .with(path, request: request_params)
+                                                .and_return(successful_response)
+    end
+
+    context 'transaction renotification' do
+      let(:request_params) { { uid: '123-uid' } }
+      let(:response_body) { { 'response' => { 'message' => 'Transaction was renotified' } } }
+      let(:path) { '/transactions/123-uid/renotify' }
+
+      it 'returns message' do
+        res = client.renotify(request_params)
+
+        expect(res.response['message']).to eq('Transaction was renotified')
+      end
+    end
+
+    context 'transaction recover' do
+      let(:response_body) { { 'response' => { 'message' => "Transaction 123-uid was updated" } } }
+      let(:path) { '/transactions/123-uid/recover' }
+      let(:request_params) { { uid: '123-uid', status: 'failed', rrn: '333', bank_code: '111' } }
+
+      it 'returns message' do
+        res = client.recover(request_params)
+
+        expect(res.response['message']).to eq("Transaction 123-uid was updated")
+      end
+    end
+  end
 end
