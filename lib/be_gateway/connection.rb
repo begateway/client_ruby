@@ -31,7 +31,7 @@ module BeGateway
     def send_request(method, path, params = nil)
       r = begin
             connection.public_send(method, path, params)
-          rescue Faraday::Error::ClientError => e
+          rescue Faraday::ClientError => e
             logger.error("Connection error to '#{path}': #{e}") if logger
 
             OpenStruct.new(
