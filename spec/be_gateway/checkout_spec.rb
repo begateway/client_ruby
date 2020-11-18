@@ -154,7 +154,7 @@ describe BeGateway::Checkout do
 
     context 'Faraday client raises an error' do
       before do
-        allow_any_instance_of(Faraday::Connection).to receive(:public_send).and_raise(Faraday::Error::ClientError, "Houston, we've got a problem")
+        allow_any_instance_of(Faraday::Connection).to receive(:public_send).and_raise(Faraday::ClientError, "Houston, we've got a problem")
       end
 
       it 'returns an error response' do
