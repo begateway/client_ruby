@@ -586,6 +586,12 @@ describe BeGateway::Client do
             end
           end
         end
+
+        context '#notification' do
+          it 'accepts hashes' do
+            expect { client.notification({}) }.not_to raise_error
+          end
+        end
       end
     end
 
@@ -626,7 +632,7 @@ describe BeGateway::Client do
     let(:client) { described_class.new(params) }
     let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
 
-    before do 
+    before do
       allow_any_instance_of(Faraday::Connection).to receive(:post)
                                                 .with(path, request: request_params)
                                                 .and_return(successful_response)
