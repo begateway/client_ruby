@@ -26,8 +26,7 @@ module BeGateway
     end
 
     def notification(params)
-      Struct.new('FormatedNotification', :status, :body)
-      Response.new(Struct::FormatedNotification.new(200, params))
+      Response.new(OpenStruct.new(status: 200, body: params))
     end
 
     def create_card(params)
