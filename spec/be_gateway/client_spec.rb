@@ -588,8 +588,61 @@ describe BeGateway::Client do
         end
 
         context '#notification' do
+          let(:body) {
+            {
+              "transaction" => {
+                "uid" => "1-fc77f1e8f0",
+                "status" => "successful",
+                "amount" => nil,
+                "currency" => nil,
+                "description" => nil,
+                "type" => "payment",
+                "payment_method_type" => "credit_card",
+                "tracking_id" => nil,
+                "message" => nil,
+                "test" => false,
+                "created_at" => "2020-11-20T10: 42: 28.786Z",
+                "updated_at" => "2020-11-20T10: 42: 28.786Z",
+                "paid_at" => nil,
+                "expired_at" => nil,
+                "closed_at" => nil,
+                "settled_at" => nil,
+                "language" => "en",
+                "redirect_url" => "http://127.0.0.1:9887/process/1-fc77f1e8f0",
+                "credit_card" => {
+                  "holder" => "Monty Hudson II",
+                  "stamp" => "a825df7faba8804619aef7a6d5a5821ec292fce04e3e43933ca33d0692df90b4",
+                  "brand" => "visa",
+                  "last_4" => "0000",
+                  "first_1" => "4",
+                  "bin" => "420000",
+                  "issuer_country" => "US",
+                  "issuer_name" => "Demo Card Issuer",
+                  "product" => nil,
+                  "exp_month" => 12,
+                  "exp_year" => 2020,
+                  "token_provider" => nil,
+                  "token" => nil
+                },
+                "receipt_url" => "default_domain/customer/transactions/1-fc77f1e8f0/06d2b42a8ee79a27c88a3dd0ef8cf12d3f1ebff2cd40d48523ea35d55d0539d4",
+                "id" => "1-fc77f1e8f0",
+                "customer" => nil,
+                "billing_address" => nil
+              }
+            }
+          }
+
           it 'accepts hashes' do
-            expect { client.notification({}) }.not_to raise_error
+            expect { client.notification(body) }.not_to raise_error
+          end
+
+          it 'returns successful response' do
+            response = client.notification(body)
+
+            expect(response.status).to eq('successful')
+            expect(response.transaction_type).to eq('payment')
+            expect(response.transaction.uid).to eq('1-fc77f1e8f0')
+            expect(response.transaction.credit_card['stamp']).to eq('a825df7faba8804619aef7a6d5a5821ec292fce04e3e43933ca33d0692df90b4')
           end
         end
       end

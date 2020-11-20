@@ -26,7 +26,7 @@ module BeGateway
     end
 
     def notification(params)
-      Response.new(OpenStruct.new(status: 200, body: params))
+      Response.new(Struct.new(:status, :body).new(200, params))
     end
 
     def create_card(params)
