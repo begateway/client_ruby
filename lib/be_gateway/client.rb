@@ -11,6 +11,11 @@ module BeGateway
       end
     end
 
+    def finalize_3ds(params)
+      path = "/process/#{params[:uid]}/return"
+      send_request('post', path, request: params)
+    end
+
     def verify_p2p(params)
       BeGateway::VerifyP2p.new(send_request('post', '/p2p-restrictions', request: params).to_params)
     end
