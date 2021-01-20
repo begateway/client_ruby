@@ -501,6 +501,24 @@ describe BeGateway::Client do
       end
 
       context 'other' do
+        context '#finalize_3ds' do
+          before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
+          let(:request_params) do
+            {
+              pa_res: 'some pa_res',
+              md: 'some md',
+              uid: '4107-310b0da80b'
+            }
+          end
+
+          it 'sends finalize_3ds request' do
+            response = client.finalize_3ds(request_params)
+
+            expect(response.transaction['uid']).to eq('4107-310b0da80b')
+            expect(response.transaction['status']).to eq('successful')
+          end
+        end
+
         context '#query' do
           before { allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(successful_response) }
           let(:request_params) { { id: '4107-310b0da80b' } }
