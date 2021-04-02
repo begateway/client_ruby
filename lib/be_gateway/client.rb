@@ -3,7 +3,7 @@ module BeGateway
     include Connection
 
     TRANSACTIONS = %w(authorize authorization capture void payment credit payout chargeback
-                      fraud_advice refund checkup p2p tokenization).freeze
+                      fraud_advice refund checkup p2p tokenization recipient_tokenization).freeze
 
     TRANSACTIONS.each do |tr_type|
       define_method tr_type.to_sym do |params|

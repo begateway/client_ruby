@@ -427,6 +427,73 @@ describe BeGateway::Client do
         end
       end
 
+      describe '#recipient_tokenization' do
+        let(:request_params) do
+          {
+            'description' => 'Test recipient tokenization',
+            'tracking_id' => 'your_uniq_number',
+            'recipient_billing_address' => {
+              'first_name' => 'John',
+              'last_name' => 'Doe',
+              'country' => 'US',
+              'city' => 'Denver',
+              'state' => 'CO',
+              'zip' => '96002',
+              'address' => '1st Street'
+            },
+            'recipient_card' => {
+              'number' => '4200000000000000',
+              'holder' => 'John Doe',
+              'exp_month' => '05',
+              'exp_year' => '2020'
+            },
+            'recipient' => {
+              'ip' => '127.0.0.1',
+              'email' => 'john@example.com'
+            }
+          }
+        end
+        let(:response_body) do
+          {
+            'transaction' => {
+              'recipient' => {
+                'ip' => '127.0.0.1',
+                'email' => 'john@example.com'
+              },
+              'recipient_card' => {
+                'token' => '40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e'
+              },
+              'recipient_billing_address' => {
+                'first_name' => 'John',
+                'last_name' => 'Doe',
+                'address' => '1st Street',
+                'country' => 'US',
+                'city' => 'Denver',
+                'zip' => '96002',
+                'state' => 'CO'
+              },
+              'uid' => '4107-310b0da80b',
+              'status' => 'successful',
+              'message' => 'Successfully processed',
+              'description' => 'Test recipient tokenization',
+              'type' => 'recipient_tokenization',
+              'tracking_id' => 'your_uniq_number'
+            }
+          }
+        end
+        let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+        before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(successful_response) }
+
+        it 'returns transaction information among with recipient card token' do
+          response = client.recipient_tokenization(request_params)
+
+          expect(response.transaction.uid).to eq('4107-310b0da80b')
+          expect(response.transaction.recipient_card['token'])
+            .to eq('40bd001563085fc35165329ea1ff5c5ecbdbbeef40bd001563085fc35165329e')
+        end
+      end
+
       context 'child' do
         %w(capture void refund).each do |tr_type|
           describe "##{tr_type}" do
