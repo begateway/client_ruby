@@ -800,4 +800,118 @@ describe BeGateway::Client do
       end
     end
   end
+  
+  describe 'async methods' do
+    let(:client) { described_class.new(params) }
+    let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+    context 'async transaction methods' do
+      subject { client }
+
+      it { should respond_to :async_payment }
+      it { should respond_to :async_authorization }
+      it { should respond_to :async_capture }
+      it { should respond_to :async_void }
+      it { should respond_to :async_credit }
+      it { should respond_to :async_payout }
+      it { should respond_to :async_refund }
+    end
+
+    context '#async_payment' do
+      context 'success async response' do
+        let(:request_params) {
+          {
+            'amount' => 100,
+            'currency' => 'USD',
+            'description' => 'Test transaction',
+            'credit_card' => {
+              'number' => '4200000000000000',
+              'verification_value' => '123',
+              'holder' => 'John Doe',
+              'exp_month' => '05',
+              'exp_year' => '2025'
+            }
+          }
+        }
+        let(:request_id) { 'fa8caf55-c845-4237-9056-e6a324d5f02d' }
+        let(:response_body) { {"status" => "processing",
+                               "request_id" => request_id,
+                               "status_url" => "https://gateway.ecomcharge.com/async/status/#{request_id}",
+                               "response_url" => "https://gateway.ecomcharge.com/async/result/#{request_id}"} }
+        let(:path) { "/async/transactions/payments" }
+
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:post)
+                                                          .with(path, request: request_params)
+                                                          .and_return(successful_response)
+        end
+
+        subject { client.async_payment(request_params) }
+
+        it 'returns success response' do
+          response = subject
+
+          expect(response.async_status).to eq('processing')
+          expect(response.status_url).to eq("https://gateway.ecomcharge.com/async/status/#{request_id}")
+          expect(response.response_url).to eq("https://gateway.ecomcharge.com/async/result/#{request_id}")
+        end
+      end
+    end
+
+    context '#async_status' do
+      let(:request_id) { 'fa8caf55-c845-4237-9056-e6a324d5f02d' }
+      let(:response_body) { {"status" => "completed",
+                             "request_id" => request_id,
+                             "status_url" => "https://gateway.ecomcharge.com/async/status/#{request_id}",
+                             "response_url" => "https://gateway.ecomcharge.com/async/result/#{request_id}"} }
+
+      let(:path) { "/async/status/#{request_id}" }
+      let(:request_params) { { request_id: request_id } }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get)
+                                                        .with(path, nil)
+                                                        .and_return(successful_response)
+      end
+
+      it 'returns response' do
+        res = client.async_status(request_params)
+
+        expect(res.async_status).to eq('completed')
+        expect(res.status_url).to eq("https://gateway.ecomcharge.com/async/status/#{request_id}")
+        expect(res.response_url).to eq("https://gateway.ecomcharge.com/async/result/#{request_id}")
+      end
+    end
+
+    context '#async_result' do
+      let(:request_id) { 'fa8caf55-c845-4237-9056-e6a324d5f02d' }
+      let(:response_body) {
+        {
+          "transaction" => {
+            "uid"=>"76505569-77ba8f7b53",
+            "status"=>"successful",
+            "amount"=>100,
+            "currency"=>"USD",
+            "description"=>"Test transaction ütf"
+          }
+        }
+      }
+
+      let(:path) { "/async/result/#{request_id}" }
+      let(:request_params) { { request_id: request_id } }
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:get)
+                                                        .with(path, nil)
+                                                        .and_return(successful_response)
+      end
+
+      it 'returns response' do
+        res = client.async_result(request_params)
+
+        expect(res.status).to eq('successful')
+        expect(res.transaction).to be_present
+      end
+    end
+  end
 end
