@@ -7,6 +7,7 @@ require 'backports/2.0.0/stdlib/ostruct'
 module BeGateway
   autoload :Connection, "be_gateway/connection"
   autoload :Client, "be_gateway/client"
+  autoload :AsyncClient, "be_gateway/async_client"
   autoload :Checkout, "be_gateway/checkout"
   autoload :Base, "be_gateway/response/base"
   autoload :Response, "be_gateway/response/response"

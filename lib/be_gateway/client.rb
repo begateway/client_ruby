@@ -9,10 +9,6 @@ module BeGateway
       define_method tr_type.to_sym do |params|
         send_request('post', action_url(tr_type), request: params)
       end
-
-      define_method "async_#{tr_type}".to_sym do |params|
-        send_request('post', async_action_url(tr_type), request: params)
-      end
     end
 
     def finalize_3ds(params)
@@ -64,13 +60,6 @@ module BeGateway
       send_request('post', path, request: params)
     end
 
-    %i[status result].each do |type|
-      define_method "async_#{type}".to_sym do |params|
-        path = "/async/#{type}/#{params[:request_id]}"
-        send_request('get', path)
-      end
-    end
-
     private
 
     def action_url(tr_type)
@@ -80,10 +69,6 @@ module BeGateway
       else
         "/transactions/#{tr_type}s"
       end
-    end
-
-    def async_action_url(tr_type)
-      "/async#{action_url(tr_type)}"
     end
   end
 end
