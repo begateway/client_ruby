@@ -16,6 +16,10 @@ module BeGateway
       @message ||= self['response']['message']
     end
 
+    def async_status
+      params["status"]
+    end
+
     private
 
     class Errors < OpenStruct
