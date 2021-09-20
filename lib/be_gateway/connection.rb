@@ -49,7 +49,11 @@ module BeGateway
 
       logger.info("[beGateway client response body] #{r.body}") if logger
 
-      (200..299).cover?(r.status) ? Response.new(r) : ErrorResponse.new(r)
+      build_response(r)
+    end
+
+    def build_response(response)
+      (200..299).cover?(response.status) ? Response.new(response) : ErrorResponse.new(response)
     end
 
     def connection

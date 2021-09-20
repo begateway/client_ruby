@@ -7,6 +7,10 @@ module BeGateway
 
     private
 
+    def build_response(response)
+      AsyncResponse.new(response)
+    end
+
     def send_request(method, path, params = nil)
       super(method, async_path(path), params)
     end

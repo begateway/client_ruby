@@ -59,9 +59,11 @@ describe BeGateway::AsyncClient do
         it 'returns success response' do
           response = subject
 
-          expect(response.async_status).to eq('processing')
-          expect(response.status_url).to eq("https://gateway.ecomcharge.com/async/status/#{request_id}")
-          expect(response.response_url).to eq("https://gateway.ecomcharge.com/async/result/#{request_id}")
+          expect(response.status).to eq(200)
+          expect(response.success?).to eq(true)
+          expect(response.body['status']).to eq('processing')
+          expect(response.body['status_url']).to eq("https://gateway.ecomcharge.com/async/status/#{request_id}")
+          expect(response.body['response_url']).to eq("https://gateway.ecomcharge.com/async/result/#{request_id}")
         end
       end
     end
@@ -92,8 +94,9 @@ describe BeGateway::AsyncClient do
       it 'returns response' do
         res = client.result(request_params)
 
-        expect(res.status).to eq('successful')
-        expect(res.transaction).to be_present
+        expect(res.status).to eq(200)
+        expect(res.success?).to eq(true)
+        expect(res.body['transaction']).to be_present
       end
     end
   end
