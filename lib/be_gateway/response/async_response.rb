@@ -1,5 +1,5 @@
 module BeGateway
-  class AsyncResponse < OpenStruct
+  class AsyncResponse
     attr_reader :status, :body
 
     def initialize(response)
@@ -7,8 +7,16 @@ module BeGateway
       @body = response.body
     end
 
-    def success?
+    def successful?
       (200..299).cover?(status)
+    end
+
+    def failed?
+      !successful?
+    end
+
+    def processing?
+      body.dig('status') == 'processing'
     end
   end
 end

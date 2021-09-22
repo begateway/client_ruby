@@ -1,3 +1,3 @@
 module BeGateway
-  VERSION = '0.24.2'
+  VERSION = '1.0.0'
 end
