@@ -8,10 +8,6 @@ module BeGateway
       params["transaction"]["status"]
     end
 
-    def async_status
-      params["status"]
-    end
-
     def transaction
       Transaction.new(params["transaction"])
     end
