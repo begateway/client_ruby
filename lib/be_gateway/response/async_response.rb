@@ -12,7 +12,7 @@ module BeGateway
     end
 
     def failed?
-      !successful?
+      !successful? && !processing?
     end
 
     def processing?
