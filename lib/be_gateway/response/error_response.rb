@@ -9,11 +9,11 @@ module BeGateway
     end
 
     def errors
-      @errors ||= Errors.new(self['response']['errors'])
+      @errors ||= Errors.new(self.dig('response', 'errors'))
     end
 
     def message
-      @message ||= self['response']['message']
+      @message ||= self.dig('response', 'message')
     end
 
     private
