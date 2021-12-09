@@ -29,27 +29,28 @@ module BeGateway
     DEFAULT_TIMEOUT = 25
 
     def send_request(method, path, params = nil)
-      r = begin
-            connection.public_send(method, path, params)
-          rescue Faraday::ClientError => e
-            logger.error("Connection error to '#{path}': #{e}") if logger
+      response =
+        begin
+          connection.public_send(method, path, params)
+        rescue Faraday::ClientError, Faraday::ServerError => e
+          logger.error("Connection error to '#{path}': #{e}") if logger
 
-            OpenStruct.new(
-              status: 500,
-              body: {
-                'response' => {
-                  'message' => 'Gateway is temporarily unavailable',
-                  'errors' => {
-                    'gateway' => 'is temporarily unavailable'
-                  }
+          OpenStruct.new(
+            status: 500,
+            body: {
+              'response' => {
+                'message' => 'Gateway is temporarily unavailable',
+                'errors' => {
+                  'gateway' => 'is temporarily unavailable'
                 }
               }
-            )
-          end
+            }
+          )
+        end
 
-      logger.info("[beGateway client response body] #{r.body}") if logger
+      logger.info("[beGateway client response body] #{response.body}") if logger
 
-      build_response(r)
+      build_response(response)
     end
 
     def build_response(response)
