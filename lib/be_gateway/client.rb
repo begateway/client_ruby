@@ -11,6 +11,11 @@ module BeGateway
       end
     end
 
+    def charge(params)
+      path = 'services/credit_cards/charges'
+      send_request('post', path, request: params)
+    end
+
     def finalize_3ds(params)
       path = "/process/#{params[:uid]}/return"
       send_request('post', path, params)
