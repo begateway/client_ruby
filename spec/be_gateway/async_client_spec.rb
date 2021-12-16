@@ -127,7 +127,7 @@ describe BeGateway::AsyncClient do
 
         expect(res.status).to eq(425)
         expect(res.successful?).to eq(false)
-        expect(res.failed?).to eq(true)
+        expect(res.failed?).to eq(false)
         expect(res.processing?).to eq(true)
       end
     end
