@@ -286,6 +286,21 @@ describe BeGateway::Client do
         end
       end
 
+      describe '#charge' do
+        subject { client.charge(request_params) }
+
+        it 'sends charge request' do
+          expect_any_instance_of(Faraday::Connection)
+            .to receive(:post)
+            .with(%r{services/credit_cards/charges}, anything)
+
+          subject
+
+          expect(subject.transaction['type']).to eq('authorization')
+          expect(subject.transaction['authorization']['auth_code']).to eq('654321')
+        end
+      end
+
       describe '#payment' do
         before do
           response_body['transaction'].tap do |hsh|
