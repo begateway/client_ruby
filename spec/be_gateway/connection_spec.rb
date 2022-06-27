@@ -1,11 +1,8 @@
 require 'spec_helper'
 
 describe 'BeGateway::Connection' do
-  class TestConnection
-    include BeGateway::Connection
-  end
-
-  let(:headers) { nil }
+  let(:test_class) { Class.new { include BeGateway::Connection } }
+  let(:headers)    { nil }
   let(:params) do
     {
       shop_id: 1,
@@ -14,7 +11,7 @@ describe 'BeGateway::Connection' do
       headers: headers
     }
   end
-  let(:client) { TestConnection.new(params) }
+  let(:client) { test_class.new(params) }
 
   context '.connection' do
     subject { client.send(:connection) }
@@ -24,6 +21,42 @@ describe 'BeGateway::Connection' do
 
       it 'contains passed headers' do
         expect(subject.headers).to include(headers)
+      end
+    end
+
+    context 'when global proxy is set' do
+      let(:proxy) { 'http://example.com' }
+
+      before { test_class.proxy = proxy }
+
+      it 'uses proxy' do
+        expect(subject.proxy.uri.to_s).to eq(proxy)
+      end
+    end
+
+    context 'when proxy passed within options' do
+      let(:proxy) { 'http://example.com' }
+
+      before { params.merge!(options: { proxy: proxy }) }
+
+      it 'uses optional proxy' do
+        expect(subject.proxy.uri.to_s).to eq(proxy)
+      end
+
+      it 'does not have global proxy' do
+        expect(test_class.proxy).to be(nil)
+      end
+    end
+
+    context 'when both proxies are set' do
+      let(:global_proxy)   { 'http://example.com:3333' }
+      let(:optional_proxy) { 'http://example.com:4444' }
+
+      before { test_class.proxy = global_proxy }
+      before { params.merge!(options: { proxy: optional_proxy }) }
+
+      it 'uses optional proxy' do
+        expect(subject.proxy.uri.to_s).to eq(optional_proxy)
       end
     end
   end
