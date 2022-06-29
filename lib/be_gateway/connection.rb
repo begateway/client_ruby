@@ -60,7 +60,7 @@ module BeGateway
       @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
         conn.options[:open_timeout] ||= DEFAULT_OPEN_TIMEOUT
         conn.options[:timeout] ||= DEFAULT_TIMEOUT
-        conn.options[:proxy] = proxy if proxy
+        conn.proxy   ||= proxy if proxy # we use ||= to keep proxy passed within options
         conn.headers = passed_headers if passed_headers
         conn.request :json
         conn.request :basic_auth, login, password
