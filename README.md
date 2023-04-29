@@ -179,6 +179,20 @@ response.errors["amount"] # => ["must be an integer"]
 response.errors["recipient_card"]  # => { "number" => ["is not a card number"] }
 ```
 
+### APIv3
+
+# Response
+```
+response.status           # => returns http status code
+response.successful?      # => returns true or false
+response.failed?          # => returns true or false
+response.body             # => returns response body
+response.code             # => returns API v3 response code ('S.0000')
+response.message          # => returns response message
+response.friendly_message # => returns response friendly_message
+response.errors           # => returns array of errors
+```
+
 ## Contributing
 
 1. Fork it
