@@ -98,8 +98,7 @@ module BeGateway
     end
 
     def headers
-      {}.tap do |h|
-        h.merge!(passed_headers) if passed_headers
+      (passed_headers || {}).tap do |h|
         h['X-API-Version'] = version if version
       end
     end

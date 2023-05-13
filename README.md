@@ -181,7 +181,16 @@ response.errors["recipient_card"]  # => { "number" => ["is not a card number"] }
 
 ### APIv3
 
-# Response
+### Intialization client
+
+``` ruby
+client = BeGateway::Client.new({
+   ...
+   version: 3
+})
+```
+
+### Response
 ```
 response.status           # => returns http status code
 response.successful?      # => returns true or false
