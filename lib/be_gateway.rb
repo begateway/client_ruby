@@ -15,4 +15,8 @@ module BeGateway
   autoload :Transaction, "be_gateway/response/transaction"
   autoload :VerifyP2p, "be_gateway/response/verify_p2p"
   autoload :AsyncResponse, "be_gateway/response/async_response"
+
+  module V3
+    autoload :Response, "be_gateway/v3/response"
+  end
 end

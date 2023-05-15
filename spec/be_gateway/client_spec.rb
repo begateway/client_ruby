@@ -746,6 +746,74 @@ describe BeGateway::Client do
           end
         end
       end
+
+      context 'API V3' do
+        let(:response_body) do
+          {
+            'customer' => {
+              'ip' => '127.0.0.1',
+              'email' => 'john@example.com',
+              'first_name' => 'John',
+              'last_name' => 'Doe',
+              'address' => '1st Street',
+              'country' => 'US',
+              'city' => 'Denver',
+              'zip' => '96002',
+              'state' => 'CO'
+            },
+            'payment_method' => {
+              'payment_method_type' => 'credit_card',
+              'holder' => 'John Doe',
+              'stamp' => '5f854c844e3007f2ecff2aa614f6a4cc6b8a2c241aab3e5776fe7912dc7b9d92',
+              'brand' => 'visa',
+              'last_4' => '0000',
+              'first_1' => '4',
+              'bin'=> '420000',
+              'issuer_country' => nil,
+              'issuer_name' => nil,
+              'product' => nil,
+              'exp_month' => 5,
+              'exp_year' => 2020,
+              'token_provider' => nil,
+              'token' => '2efef4c9-d4de-4603-bc84-7a9bc5456939'
+            },
+            'transaction' => {
+              'auth_code' => '654321',
+              'bank_code' => '00',
+              'rrn' => '999',
+              'ref_id' => '777888',
+              'message' => 'The operation was successfully processed.',
+              'gateway_id' => 317,
+              'billing_descriptor' => 'TEST GATEWAY BILLING DESCRIPTOR',
+              'status' => 'successful'
+            },
+            'uid' => '4107-310b0da80b',
+            'code' => 'S.0000',
+            'status' => 'successful',
+            'friendly_message' => 'The operation is successful.',
+            'message' => 'Successfully processed',
+            'amount' => 100,
+            'currency' => 'USD',
+            'description' => 'Test order',
+            'type' => 'authorization',
+            'tracking_id' => 'your_uniq_number',
+            'language' => 'en'
+          }
+        end
+
+        before { params[:version] = 3 }
+
+        it 'returns transaction information' do
+          response = client.authorize(request_params)
+
+          expect(response.status).to eq 200
+          expect(response.successful?).to eq(true)
+          expect(response.code).to eq('S.0000')
+          expect(response.message).to eq('Successfully processed')
+          expect(response.friendly_message).to eq('The operation is successful.')
+          expect(response.errors).to be_nil
+        end
+      end
     end
 
     context 'failed request' do
@@ -764,7 +832,7 @@ describe BeGateway::Client do
 
       before do
         request_params.tap do |hsh|
-          hsh['amount'] = nil
+          hsh['currency'] = nil
           hsh['description'] = nil
           hsh['amount'] = 0
         end
@@ -777,6 +845,57 @@ describe BeGateway::Client do
         response = client.authorize(request_params)
 
         expect(response.errors.amount).to eq(['must be greater than 0'])
+      end
+
+      context 'API V3' do
+        let(:response_body) do
+          {
+            'code' => 'E.1025',
+            'friendly_message' => 'Invalid request params',
+            'message' => "Description can't be blank. Currency can't be blank.",
+            'errors' => {
+              'description' => ["can't be blank"],
+              'currency' => ["can't be blank"]
+            }
+          }
+        end
+
+        before { params[:version] = 3 }
+
+        it 'returns error response' do
+          response = client.authorize(request_params)
+
+          expect(response.status).to eq 422
+          expect(response.failed?).to eq(true)
+          expect(response.code).to eq('E.1025')
+          expect(response.message).to eq("Description can't be blank. Currency can't be blank.")
+          expect(response.friendly_message).to eq('Invalid request params')
+          expect(response.errors).to eq({ 'description' => ["can't be blank"], 'currency' => ["can't be blank"] })
+        end
+      end
+    end
+
+    context 'error request' do
+      before { allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::ClientError) }
+
+      it 'returns error response' do
+        response = client.authorize(request_params)
+
+        expect(response.message).to eq('Gateway is temporarily unavailable')
+      end
+
+      context 'API V3' do
+        before { params[:version] = 3 }
+
+        it 'returns error response' do
+          response = client.authorize(request_params)
+
+          expect(response.status).to eq 500
+          expect(response.failed?).to eq(true)
+          expect(response.code).to eq('F.1000')
+          expect(response.message).to eq('Unknown error: Contact the payment service provider for details.')
+          expect(response.friendly_message).to eq('We are sorry, but something went wrong.')
+        end
       end
     end
   end
