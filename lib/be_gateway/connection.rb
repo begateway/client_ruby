@@ -99,7 +99,7 @@ module BeGateway
 
     def headers
       (passed_headers || {}).tap do |h|
-        h['X-API-Version'] = version if version
+        h['X-API-Version'] = version.to_s if version
       end
     end
 
