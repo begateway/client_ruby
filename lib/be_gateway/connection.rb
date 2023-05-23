@@ -36,7 +36,7 @@ module BeGateway
 
       build_response(r)
     rescue StandardError, Faraday::ClientError => e
-      logger.error("Connection error to '#{path}': #{e}") if logger
+      logger.error("Connection error to '#{path}': [#{e.class}] #{e.message} \n #{e.backtrace}") if logger
 
       failed_response
     end
