@@ -32,7 +32,7 @@ module BeGateway
     def send_request(method, path, params = nil)
       r = connection.public_send(method, path, params)
 
-      logger.info("[beGateway client response body] #{r.body}") if logger
+      logger.info("[beGateway client response] Headers: #{r.headers} Body: #{r.body}") if logger
 
       build_response(r)
     rescue StandardError, Faraday::ClientError => e
