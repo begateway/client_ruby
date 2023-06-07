@@ -32,11 +32,11 @@ module BeGateway
     def send_request(method, path, params = nil)
       r = connection.public_send(method, path, params)
 
-      logger.info("[beGateway client response body] #{r.body}") if logger
+      logger.info("[beGateway client response] Headers: #{r.headers} Body: #{r.body}") if logger
 
       build_response(r)
     rescue StandardError, Faraday::ClientError => e
-      logger.error("Connection error to '#{path}': #{e}") if logger
+      logger.error("Connection error to '#{path}': [#{e.class}] #{e.message} \n #{e.backtrace}") if logger
 
       failed_response
     end
@@ -99,7 +99,7 @@ module BeGateway
 
     def headers
       (passed_headers || {}).tap do |h|
-        h['X-API-Version'] = version if version
+        h['X-API-Version'] = version.to_s if version
       end
     end
 
