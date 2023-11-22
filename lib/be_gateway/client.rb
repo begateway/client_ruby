@@ -57,9 +57,9 @@ module BeGateway
       send_request('put', "/v2/credit_cards/#{token}", request: params)
     end
 
-    %w(renotify recover confirm proof).each do |tr_type|
-      define_method tr_type.to_sym do |params|
-        send_request('post', action_url_for_operation(tr_type, params[:uid]), request: params)
+    TRANSACTION_OPERATIONS.each do |op_type|
+      define_method op_type.to_sym do |params|
+        send_request('post', action_url_for_operation(op_type, params[:uid]), request: params)
       end
     end
 
@@ -74,8 +74,8 @@ module BeGateway
       end
     end
 
-    def action_url_for_operation(tr_type, uid)
-      "/transactions/#{uid}/#{tr_type}"
+    def action_url_for_operation(type, uid)
+      "/transactions/#{uid}/#{type}"
     end
   end
 end
