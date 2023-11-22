@@ -5,6 +5,8 @@ module BeGateway
     TRANSACTIONS = %w(authorize authorization capture void payment credit payout chargeback
                       fraud_advice refund checkup p2p tokenization recipient_tokenization).freeze
 
+    TRANSACTION_OPERATIONS = %w(renotify recover confirm proof).freeze
+
     TRANSACTIONS.each do |tr_type|
       define_method tr_type.to_sym do |params|
         send_request('post', action_url(tr_type), request: params)
@@ -55,14 +57,10 @@ module BeGateway
       send_request('put', "/v2/credit_cards/#{token}", request: params)
     end
 
-    def renotify(params)
-      path = "/transactions/#{params[:uid]}/renotify"
-      send_request('post', path, request: params)
-    end
-
-    def recover(params)
-      path = "/transactions/#{params[:uid]}/recover"
-      send_request('post', path, request: params)
+    TRANSACTION_OPERATIONS.each do |op_type|
+      define_method op_type.to_sym do |params|
+        send_request('post', action_url_for_operation(op_type, params[:uid]), request: params)
+      end
     end
 
     private
@@ -74,6 +72,10 @@ module BeGateway
       else
         "/transactions/#{tr_type}s"
       end
+    end
+
+    def action_url_for_operation(type, uid)
+      "/transactions/#{uid}/#{type}"
     end
   end
 end
