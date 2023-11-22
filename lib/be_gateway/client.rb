@@ -65,6 +65,16 @@ module BeGateway
       send_request('post', path, request: params)
     end
 
+    def confirm(params)
+      path = "/transactions/#{params[:uid]}/confirm"
+      send_request('post', path, request: params)
+    end
+
+    def proof(params)
+      path = "/transactions/#{params[:uid]}/proof"
+      send_request('post', path, request: params)
+    end
+
     private
 
     def action_url(tr_type)
