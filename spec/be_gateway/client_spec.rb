@@ -120,6 +120,109 @@ describe BeGateway::Client do
     end
   end
 
+  describe 'bank_names' do
+    subject(:client) { described_class.new(params) }
+
+    let(:params) do
+      { shop_id: nil, secret_key: nil, url: 'https://gateway.ecomcharge.com', headers: { 'HTTP_PSP_AUTH' => 'secret_key' } }
+    end
+    let(:successful_response) { OpenStruct.new(status: 200, body: response_body) }
+
+    describe 'GET /' do
+      let(:response_body) do
+        {
+          bank_names: [
+            {
+              'id' => 1,
+              'name' => 'First Bank',
+              'issuers' => [{ 'id' => 1, 'full_name' => 'First Bank Company' }]
+            },
+            {
+              'id' => 2,
+              'name' => 'Second Bank',
+              'issuers' => [
+                { 'id' => 2, 'full_name' => 'Second Bank' },
+                { 'id' => 3, 'full_name' => 'Open Second Bank' }
+              ]
+            }
+          ]
+        }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to(
+          receive(:get).with('/bank_names', { page: 1, per_page: 5 }).and_return(successful_response)
+        )
+      end
+
+      it 'returns successful response about bank names' do
+        response = client.bank_names(page: 1, per_page: 5)
+        expect(response.to_h).to(eq(response_body))
+      end
+    end
+
+    describe 'GET /:id' do
+      let(:response_body) do
+        {
+          id: 1,
+          name: 'First Bank',
+          issuers: [{ 'id' => 1, 'full_name' => 'First Bank Company' }]
+        }
+      end
+
+      before { allow_any_instance_of(Faraday::Connection).to receive(:get).with('/bank_names/1', nil).and_return(successful_response) }
+
+      it 'returns successful response about bank name' do
+        response = client.bank_name(id: 1)
+        expect(response.to_h).to(eq(response_body))
+      end
+    end
+
+    describe 'PATCH /:id' do
+      let(:response_body) do
+        {
+          id: 1,
+          name: 'First Bank',
+          issuers: [{ 'id' => 1, 'full_name' => 'First Bank Company' }]
+        }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to(
+          receive(:patch).with('/bank_names/1', { name: 'New', issuer_ids: [1] }).and_return(successful_response)
+        )
+      end
+
+      it 'returns successful response to update bank name' do
+        response = client.update_bank_name(id: 1, params: { name: 'New', issuer_ids: [1] })
+        expect(response.to_h).to(eq(response_body))
+      end
+    end
+
+    describe 'GET /issuers' do
+      let(:response_body) do
+        {
+          issuers: [
+            { 'id' => 1, 'full_name' => 'First Bank Company' },
+            { 'id' => 2, 'full_name' => 'Second Bank' },
+            { 'id' => 3, 'full_name' => 'Open Second Bank' }
+          ]
+        }
+      end
+
+      before do
+        allow_any_instance_of(Faraday::Connection).to(
+          receive(:get).with('/bank_names/issuers', { query: 'Bank' }).and_return(successful_response)
+        )
+      end
+
+      it 'returns successful response about bank names' do
+        response = client.issuers(query: 'Bank')
+        expect(response.to_h).to(eq(response_body))
+      end
+    end
+  end
+
   describe 'credit card' do
     context 'v2' do
       let(:client) { described_class.new(params) }

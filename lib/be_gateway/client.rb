@@ -45,6 +45,22 @@ module BeGateway
       send_request('post', '/credit_cards', request: params)
     end
 
+    def bank_names(params)
+      send_request('get', '/bank_names', params)
+    end
+
+    def bank_name(id:)
+      send_request('get', "/bank_names/#{id}")
+    end
+
+    def update_bank_name(id:, params:)
+      send_request('patch', "/bank_names/#{id}", params)
+    end
+
+    def issuers(params)
+      send_request('get', "/bank_names/issuers", params)
+    end
+
     def update_card_by_token(token, params)
       send_request('post', "/credit_cards/#{token}", request: params)
     end
