@@ -5,6 +5,11 @@ module BeGateway
       send_request('get', path)
     end
 
+    def status(params)
+      path = "/status/#{params[:request_id]}"
+      send_request('get', path)
+    end
+
     private
 
     def build_response(response)
