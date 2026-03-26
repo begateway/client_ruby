@@ -32,6 +32,10 @@ module BeGateway
       send_request('get', path)
     end
 
+    def vendor_token(vendor_name:, vendor_token:)
+      BeGateway::VendorTokenResponse.new(send_request('get', "/vendor_tokens/#{vendor_name}/#{vendor_token}").to_params)
+    end
+
     def close_days(params)
       path = '/transactions/close_days'
       send_request('post', path, request: params)
