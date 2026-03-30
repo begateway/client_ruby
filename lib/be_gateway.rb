@@ -15,6 +15,7 @@ module BeGateway
   autoload :Transaction, "be_gateway/response/transaction"
   autoload :VerifyP2p, "be_gateway/response/verify_p2p"
   autoload :VendorTokenResponse, "be_gateway/response/vendor_token_response"
+  autoload :VendorParentUidResponse, "be_gateway/response/vendor_parent_uid_response"
   autoload :AsyncResponse, "be_gateway/response/async_response"
 
   module V3

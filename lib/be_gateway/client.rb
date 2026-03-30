@@ -33,7 +33,11 @@ module BeGateway
     end
 
     def vendor_token(vendor_name:, vendor_token:)
-      BeGateway::VendorTokenResponse.new(send_request('get', "/vendor_tokens/#{vendor_name}/#{vendor_token}").to_params)
+      BeGateway::VendorTokenResponse.new(send_request('get', "/vendor/tokens/#{vendor_name}/#{vendor_token}").to_params)
+    end
+
+    def vendor_parent_uid(vendor_name:, vendor_token:)
+      BeGateway::VendorParentUidResponse.new(send_request('get', "/vendor/parent_transaction/#{vendor_name}/#{vendor_token}").to_params)
     end
 
     def close_days(params)
