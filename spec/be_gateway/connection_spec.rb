@@ -28,6 +28,7 @@ describe 'BeGateway::Connection' do
       let(:proxy) { 'http://example.com' }
 
       before { test_class.proxy = proxy }
+      before { params.merge!(options: { read_timeout: 60 }) }
 
       it 'uses proxy' do
         expect(subject.proxy.uri.to_s).to eq(proxy)
