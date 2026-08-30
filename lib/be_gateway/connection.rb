@@ -14,6 +14,7 @@ module BeGateway
       @login = params.fetch(:shop_id)
       @password = params.fetch(:secret_key)
       @url = params.fetch(:url)
+      @read_timeout = params[:options]&.delete(:read_timeout)
       @opts = params[:options] || {}
       @rack_app = params[:rack_app]
       @passed_headers = params[:headers]
@@ -24,7 +25,7 @@ module BeGateway
 
     private
 
-    attr_reader :login, :password, :url, :rack_app, :version
+    attr_reader :login, :password, :url, :rack_app, :version, :read_timeout
 
     DEFAULT_OPEN_TIMEOUT = 5
     DEFAULT_TIMEOUT = 25
@@ -80,7 +81,7 @@ module BeGateway
     def connection
       @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
         conn.options[:open_timeout] ||= DEFAULT_OPEN_TIMEOUT
-        conn.options[:timeout] ||= DEFAULT_TIMEOUT
+        conn.options[:timeout] ||= read_timeout || DEFAULT_TIMEOUT
         conn.proxy   ||= proxy if proxy # we use ||= to keep proxy passed within options
         conn.headers = headers
         conn.request :json
