@@ -1,6 +1,5 @@
 require 'bundler/setup'
 require 'logger'
-require 'active_support'
 require 'ostruct'
 require 'pry'
 

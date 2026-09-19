@@ -100,7 +100,7 @@ describe BeGateway::AsyncClient do
         expect(res.successful?).to eq(true)
         expect(res.failed?).to eq(false)
         expect(res.processing?).to eq(false)
-        expect(res.body['transaction']).to be_present
+        expect(res.body['transaction']).not_to be_empty
       end
     end
 
