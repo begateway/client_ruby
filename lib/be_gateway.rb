@@ -17,6 +17,7 @@ module BeGateway
   autoload :VendorTokenResponse, "be_gateway/response/vendor_token_response"
   autoload :VendorParentUidResponse, "be_gateway/response/vendor_parent_uid_response"
   autoload :AsyncResponse, "be_gateway/response/async_response"
+  autoload :Webhook, "be_gateway/webhook"
 
   module V3
     autoload :Response, "be_gateway/v3/response"

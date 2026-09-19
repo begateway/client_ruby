@@ -1,6 +1,6 @@
 # BeGateway
 
-TODO: Write a gem description
+Ruby client for the BeGateway payment platform API. It sends gateway transactions, creates checkout payment pages and verifies payment notifications.
 
 ## Installation
 
@@ -178,6 +178,64 @@ response.errors       # => returns array of errors fields or nil
 response.errors["amount"] # => ["must be an integer"]
 response.errors["recipient_card"]  # => { "number" => ["is not a card number"] }
 ```
+
+### Checkout
+
+``` ruby
+checkout = BeGateway::Checkout.new({
+  shop_id: 'YOUR SHOP ID',
+  secret_key: 'YOUR SHOP SECRET KEY',
+  url: 'https://checkout.bepaid.by'
+})
+
+response = checkout.get_token({
+  transaction_type: 'payment',
+  order: {
+    amount: 4299, # 42.99 in minor units
+    currency: 'BYN',
+    description: 'Order 123',
+    tracking_id: 'order-123'
+  },
+  settings: {
+    notification_url: 'https://example.com/be_gateway/notifications',
+    return_url: 'https://example.com/orders/123'
+  },
+  test: true
+})
+
+response['checkout']['redirect_url'] # => payment page to send the customer to
+token = response['checkout']['token']
+
+response = checkout.query(token)
+```
+
+### Notifications
+
+The gateway posts notifications to `notification_url` with basic auth and a `Content-Signature` header, which signs the raw request body. Check both before trusting the body. The public key from the back office can be passed as is (base64 DER) or as PEM.
+
+``` ruby
+class BeGatewayNotificationsController < ApplicationController
+  skip_forgery_protection
+
+  def create
+    signed = BeGateway::Webhook.valid_signature?(
+      request.raw_post,
+      request.headers['Content-Signature'],
+      'YOUR SHOP PUBLIC KEY'
+    )
+    authorized = BeGateway::Webhook.valid_authorization?(
+      request.authorization,
+      shop_id: 'YOUR SHOP ID',
+      secret_key: 'YOUR SHOP SECRET KEY'
+    )
+    return head :unauthorized unless signed && authorized
+
+    head :ok
+  end
+end
+```
+
+The gateway retries until it gets 200. Before fulfilling an order, confirm the final status with `client.query(tracking_id: ...)`.
 
 ### APIv3
 
