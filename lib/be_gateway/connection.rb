@@ -32,11 +32,14 @@ module BeGateway
     def send_request(method, path, params = nil)
       r = connection.public_send(method, path, params)
 
-      logger.info("[beGateway client response] Headers: #{r.headers} Body: #{r.body}") if logger
+      if request_logger
+        request_logger.info { "[beGateway client response] Status: #{r.status} Headers: #{r.headers}" }
+        request_logger.debug { "[beGateway client response] Body: #{r.body}" }
+      end
 
       build_response(r)
     rescue StandardError, Faraday::ClientError => e
-      logger.error("Connection error to '#{path}': [#{e.class}] #{e.message} \n #{e.backtrace}") if logger
+      request_logger.error("Connection error to '#{path}': [#{e.class}] #{e.message} \n #{e.backtrace}") if request_logger
 
       failed_response
     end
@@ -78,7 +81,7 @@ module BeGateway
     end
 
     def connection
-      @connection ||= Faraday::Connection.new(url, opts || {}) do |conn|
+      @connection ||= Faraday::Connection.new(url, opts.except(:logger)) do |conn|
         conn.options[:open_timeout] ||= DEFAULT_OPEN_TIMEOUT
         conn.options[:timeout] ||= DEFAULT_TIMEOUT
         conn.proxy   ||= proxy if proxy # we use ||= to keep proxy passed within options
@@ -86,7 +89,11 @@ module BeGateway
         conn.request :json
         conn.request :basic_auth, login, password
         conn.response :json
-        conn.response :logger, logger
+        if request_logger
+          conn.response :logger, request_logger, headers: true, bodies: false do |formatter|
+            formatter.filter(/(Authorization: "?Basic )[^"\s]+/, '\1[FILTERED]')
+          end
+        end
         if stub_app
           conn.adapter :test, stub_app
         elsif rack_app
@@ -103,8 +110,8 @@ module BeGateway
       end
     end
 
-    def logger
-      (opts[:logger] || Logger.new(STDOUT)).tap { |l| l.level = Logger::INFO }
+    def request_logger
+      opts[:logger] || logger
     end
   end
 end

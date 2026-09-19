@@ -28,6 +28,17 @@ client = BeGateway::Client.new({
 })
 ```
 
+### Logging
+
+Logging is off by default. To turn it on for all clients, set a logger:
+
+``` ruby
+BeGateway::Client.logger = Logger.new($stdout)
+```
+
+To log a single client, pass `options: { logger: Logger.new($stdout) }` to `BeGateway::Client.new`.
+The `Authorization` header is masked in the request log, and response bodies are logged only at `DEBUG` level.
+
 ### Availibale actions:
 * authorization
 * authorize (*DEPRECATED*)

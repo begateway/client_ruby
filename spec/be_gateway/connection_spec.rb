@@ -78,6 +78,73 @@ describe 'BeGateway::Connection' do
 
       subject
     end
+
+    context 'logging' do
+      let(:io)            { StringIO.new }
+      let(:io_logger)     { Logger.new(io) }
+      let(:credentials)   { ["#{params[:shop_id]}:#{params[:secret_key]}"].pack('m0') }
+      let(:response_body) { {'transaction' => {'credit_card' => {'token' => 'card-token'}}} }
+
+      before do
+        test_class.stub_app = Faraday::Adapter::Test::Stubs.new do |stub|
+          stub.post(path) { [200, {}, response_body] }
+        end
+      end
+
+      after do
+        test_class.logger = nil
+        test_class.stub_app = nil
+      end
+
+      context 'when logger is not set' do
+        it 'writes nothing to stdout' do
+          expect { subject }.not_to output.to_stdout
+        end
+      end
+
+      context 'when logger is set' do
+        before { test_class.logger = io_logger }
+
+        it 'logs the request with masked credentials' do
+          subject
+
+          expect(io.string).to include('POST', path, 'Authorization: "Basic [FILTERED]"')
+          expect(io.string).not_to include(credentials)
+          expect(io.string).not_to include(params[:secret_key])
+        end
+
+        it 'does not log response body at INFO' do
+          io_logger.level = Logger::INFO
+          subject
+
+          expect(io.string).not_to include('card-token')
+        end
+
+        it 'logs response body at DEBUG' do
+          io_logger.level = Logger::DEBUG
+          subject
+
+          expect(io.string).to include('card-token')
+        end
+      end
+
+      context 'when logger is passed within options' do
+        before { params.merge!(options: { logger: io_logger }) }
+
+        it 'logs to the passed logger' do
+          subject
+
+          expect(io.string).to include('POST', path)
+        end
+
+        it 'keeps the level of the passed logger' do
+          io_logger.level = Logger::WARN
+          subject
+
+          expect(io_logger.level).to eq(Logger::WARN)
+        end
+      end
+    end
   end
 
 end
