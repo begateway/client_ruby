@@ -31,6 +31,7 @@ module BeGateway
 
     def send_request(method, path, params = nil)
       r = connection.public_send(method, path, params)
+      r.env.body = (JSON.parse(r.body) unless r.body.strip.empty?) if r.body.is_a?(String)
 
       logger.info("[beGateway client response] Headers: #{r.headers} Body: #{r.body}") if logger
 
@@ -83,9 +84,8 @@ module BeGateway
         conn.options[:timeout] ||= DEFAULT_TIMEOUT
         conn.proxy   ||= proxy if proxy # we use ||= to keep proxy passed within options
         conn.headers = headers
+        conn.headers['Authorization'] ||= "Basic #{["#{login}:#{password}"].pack('m0')}"
         conn.request :json
-        conn.request :basic_auth, login, password
-        conn.response :json
         conn.response :logger, logger
         if stub_app
           conn.adapter :test, stub_app

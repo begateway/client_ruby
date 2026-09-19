@@ -18,9 +18,9 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_runtime_dependency "activesupport"
-  gem.add_runtime_dependency "faraday"
-  gem.add_runtime_dependency "faraday_middleware"
-  gem.add_runtime_dependency "backports"
+  gem.add_runtime_dependency "faraday", ">= 1.10", "< 3"
+  gem.add_runtime_dependency "ostruct"
+  gem.add_runtime_dependency "logger"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "pry"
   gem.add_development_dependency "byebug"

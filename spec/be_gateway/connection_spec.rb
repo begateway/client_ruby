@@ -78,6 +78,50 @@ describe 'BeGateway::Connection' do
 
       subject
     end
+
+    context 'through the middleware stack' do
+      let(:sent_headers) { {} }
+      let(:transaction)  { {'uid' => '1-310b0da80b', 'status' => 'successful'} }
+      let(:response)     { [200, { 'Content-Type' => 'application/json' }, { 'transaction' => transaction }.to_json] }
+
+      before do
+        test_class.logger = Logger.new(nil)
+        test_class.stub_app = Faraday::Adapter::Test::Stubs.new do |stub|
+          stub.post(path) do |env|
+            sent_headers.update(env.request_headers)
+            response
+          end
+        end
+      end
+
+      it 'sends basic auth header' do
+        subject
+        expect(sent_headers['Authorization']).to eq('Basic MTpzZWNyZXRfa2V5')
+      end
+
+      context 'when passed headers' do
+        let(:headers) { {'RequestID' => 'some-request-id'} }
+
+        it 'sends passed headers with basic auth header' do
+          subject
+          expect(sent_headers).to include('RequestID' => 'some-request-id', 'Authorization' => 'Basic MTpzZWNyZXRfa2V5')
+        end
+      end
+
+      it 'parses JSON response body' do
+        expect(subject).to be_a(BeGateway::Response)
+        expect(subject.to_params['transaction']).to eq(transaction)
+      end
+
+      context 'when response body is empty' do
+        let(:response) { [204, {}, ''] }
+
+        it 'returns successful response' do
+          expect(subject).to be_a(BeGateway::Response)
+          expect(subject.code).to eq(204)
+        end
+      end
+    end
   end
 
 end
