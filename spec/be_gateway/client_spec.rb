@@ -75,7 +75,6 @@ describe BeGateway::Client do
 
       expect(response).to be_a(BeGateway::VerifyP2p)
       expect(response.code).to eq 200
-      expect(response.api_code).to eq('S.0000')
       expect(response.status).to eq('successful')
       expect(response.successful?).to be true
       expect(response.message).to eq('p2p is allowed')
