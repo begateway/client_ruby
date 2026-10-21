@@ -20,5 +20,6 @@ module BeGateway
 
   module V3
     autoload :Response, "be_gateway/v3/response"
+    autoload :VerifyP2p, "be_gateway/v3/verify_p2p"
   end
 end

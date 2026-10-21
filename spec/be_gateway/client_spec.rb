@@ -57,6 +57,8 @@ describe BeGateway::Client do
       {
         "status"  => "successful",
         "message" => "p2p is allowed",
+        "code" => "S.0000",
+        "friendly_message" => "P2P verification passed.",
         "required_fields" => {
           "credit_card"    => ["holder"],
           "recipient_card" => ["holder"]
@@ -71,10 +73,12 @@ describe BeGateway::Client do
     it 'verifies p2p' do
       response = client.verify_p2p(request_params)
 
+      expect(response).to be_a(BeGateway::VerifyP2p)
       expect(response.code).to eq 200
       expect(response.status).to eq('successful')
       expect(response.successful?).to be true
       expect(response.message).to eq('p2p is allowed')
+      expect(response.friendly_message).to eq('P2P verification passed.')
 
       expect(response.required_fields['recipient_card']).to eq(['holder'])
       expect(response.commission['minimum']).to eq(0.7)
@@ -83,6 +87,30 @@ describe BeGateway::Client do
       expect(response.error?).to be false
       expect(response.error_code).to be nil
       expect(response.errors).to be nil
+    end
+
+    context 'when API v3 is enabled' do
+      let(:response_body) do
+        {
+          'status' => 'failed',
+          'message' => 'Transaction could not be processed. Try again later.',
+          'code' => 'F.0103',
+          'friendly_message' => 'Transaction could not be processed. Try again later.'
+        }
+      end
+
+      before { params[:version] = 3 }
+
+      it 'uses the v3 response status and code fields' do
+        response = client.verify_p2p(request_params)
+
+        expect(response).to be_a(BeGateway::V3::VerifyP2p)
+        expect(response.status).to eq(200)
+        expect(response.code).to eq('F.0103')
+        expect(response).not_to respond_to(:api_code)
+        expect(response.successful?).to be true
+        expect(response.friendly_message).to eq('Transaction could not be processed. Try again later.')
+      end
     end
 
     context 'when response is error' do

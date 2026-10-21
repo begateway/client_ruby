@@ -24,7 +24,13 @@ module BeGateway
     end
 
     def verify_p2p(params)
-      BeGateway::VerifyP2p.new(send_request('post', '/p2p-restrictions', request: params).to_params)
+      response = send_request('post', '/p2p-restrictions', request: params)
+
+      if response.is_a?(BeGateway::V3::Response)
+        BeGateway::V3::VerifyP2p.new(response.status, response.body)
+      else
+        BeGateway::VerifyP2p.new(response.to_params)
+      end
     end
 
     def query(params)
