@@ -10,7 +10,10 @@ module BeGateway
     end
 
     def to_params
-      params.merge('code' => code)
+      response_params = params.dup
+      response_params['api_code'] = response_params['code'] if response_params.key?('code')
+      response_params['code'] = code
+      response_params
     end
 
     private
