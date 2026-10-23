@@ -18,16 +18,18 @@ module BeGateway
       @rack_app = params[:rack_app]
       @passed_headers = params[:headers]
       @version = params[:version]
+      @raise_errors = params[:raise_errors]
     end
 
     attr_reader :passed_headers
 
     private
 
-    attr_reader :login, :password, :url, :rack_app, :version
+    attr_reader :login, :password, :url, :rack_app, :version, :raise_errors
 
     DEFAULT_OPEN_TIMEOUT = 5
     DEFAULT_TIMEOUT = 25
+    CONNECTION_ERRORS = [Faraday::ConnectionFailed, Faraday::TimeoutError, Faraday::SSLError].freeze
 
     def send_request(method, path, params = nil)
       r = connection.public_send(method, path, params)
@@ -36,7 +38,10 @@ module BeGateway
 
       build_response(r)
     rescue StandardError, Faraday::ClientError => e
+      raise if raise_errors && r.nil? && CONNECTION_ERRORS.none? { |klass| e.is_a?(klass) }
+
       logger.error("Connection error to '#{path}': [#{e.class}] #{e.message} \n #{e.backtrace}") if logger
+      raise ConnectionError, e.message if raise_errors && r.nil?
 
       failed_response
     end

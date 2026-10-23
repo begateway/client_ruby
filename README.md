@@ -202,6 +202,27 @@ response.friendly_message # => returns response friendly_message
 response.errors           # => returns array of errors
 ```
 
+### Errors
+
+By default any exception during a request, including connection errors and timeouts, is logged and returned as a failed response with status 500.
+
+With `raise_errors: true` connection errors and timeouts raise `BeGateway::ConnectionError` with the original error as `cause`. Other exceptions are not rescued, and HTTP error responses are returned as usual.
+
+After a timeout on a payment the transaction may already exist, so query it by `tracking_id` before retrying.
+
+``` ruby
+client = BeGateway::Client.new({
+   ...
+   raise_errors: true
+})
+
+begin
+  response = client.payment(params)
+rescue BeGateway::ConnectionError
+  response = client.query(tracking_id: params[:tracking_id])
+end
+```
+
 ## Contributing
 
 1. Fork it

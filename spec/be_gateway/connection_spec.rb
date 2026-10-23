@@ -78,6 +78,82 @@ describe 'BeGateway::Connection' do
 
       subject
     end
+
+    context 'when request fails' do
+      let(:error) { Faraday::TimeoutError.new('execution expired') }
+      let(:stub_app) do
+        Faraday::Adapter::Test::Stubs.new { |stub| stub.post(path) { raise error } }
+      end
+
+      before { test_class.stub_app = stub_app }
+      after  { test_class.stub_app = nil }
+
+      it 'returns failed response' do
+        expect(subject).to be_a(BeGateway::ErrorResponse)
+        expect(subject.code).to eq(500)
+        expect(subject.message).to eq('Gateway is temporarily unavailable')
+      end
+
+      context 'with raise_errors' do
+        before { params.merge!(raise_errors: true) }
+
+        it 'raises connection error on timeout' do
+          expect { subject }.to raise_error(BeGateway::ConnectionError, 'execution expired') { |e|
+            expect(e.cause).to be(error)
+          }
+        end
+
+        context 'when connection failed' do
+          let(:error) { Faraday::ConnectionFailed.new('Connection refused') }
+
+          it 'raises connection error' do
+            expect { subject }.to raise_error(BeGateway::ConnectionError, 'Connection refused')
+          end
+        end
+
+        context 'when other error is raised' do
+          let(:error) { RuntimeError.new('boom') }
+
+          it 'raises original error' do
+            expect { subject }.to raise_error(RuntimeError, 'boom')
+          end
+        end
+
+        context 'when gateway answers with error' do
+          let(:body) { { 'response' => { 'message' => 'Amount is invalid', 'errors' => { 'amount' => ['is invalid'] } } } }
+          let(:stub_app) do
+            Faraday::Adapter::Test::Stubs.new { |stub| stub.post(path) { [422, {}, body] } }
+          end
+
+          it 'returns error response' do
+            expect(subject).to be_a(BeGateway::ErrorResponse)
+            expect(subject.code).to eq(422)
+            expect(subject.message).to eq('Amount is invalid')
+          end
+        end
+
+        context 'when gateway answers with html page' do
+          let(:stub_app) do
+            Faraday::Adapter::Test::Stubs.new do |stub|
+              stub.post(path) { [502, { 'Content-Type' => 'text/html' }, '<html>Bad Gateway</html>'] }
+            end
+          end
+
+          it 'returns failed response' do
+            expect(subject).to be_a(BeGateway::ErrorResponse)
+            expect(subject.code).to eq(500)
+          end
+        end
+
+        context 'when api version 3 is used' do
+          before { params.merge!(version: 3) }
+
+          it 'raises connection error on timeout' do
+            expect { subject }.to raise_error(BeGateway::ConnectionError)
+          end
+        end
+      end
+    end
   end
 
 end
